@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="ui-style.css" />
+
+  </head>
+
+  <body>
+    <div id="overbar">
+      <p>
+        inØsight — Zero Width Obfuscation 1.5<a id="homepage" href="https://github.com/PlanetRenox/in0sight">Homepage</a>
+      </p>
+    </div>
+
+    <textarea id="kiloArea" placeholder="input text here..."></textarea>
+    <input id="obf" type="button" name="button" value="encode to clipboard" /> <input id="decode" type="button" name="button"
+      value="decode from text" />
+    <select id="dropdown">
+      <option>version 1.2</option>
+      <option>version 1.1</option>
+      <option>version 1.0</option>
+      <option>limited proT</option>
+      <option>limited twiT</option>
+      <option>limited winT</option>
+    </select>
+
+    <select id="dropdownEncryption">
+      <option>no encryption</option>
+      <option>RC6 (Rivest Cipher 6)</option>
+    </select>
+
+    <p id="notice">
+      Different versions exist because some sites restrict Ø width characters. <a id="versions"
+        href="https://github.com/PlanetRenox/in0sight/blob/master/CompatibilityList.md">[compatibility list]</a>
+    </p>
+    <script src="ui-script.js"></script>
+  </body>
+
+</html>

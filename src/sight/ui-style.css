@@ -1,0 +1,118 @@
+/* https://github.com/PlanetRenox/in0sight
+Contact: PlanetRenox@PM.ME */
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+
+/* ---------------------------------------------------- */
+
+@font-face {
+  font-family: "LocalCandara";
+  src: url("/resources/fonts/candara-webfont.woff") format("woff");
+}
+
+body {
+font-family: Candara, "DejaVu Sans", Sans-Serif, LocalCandara, Arial, Helvetica;
+background-color: #002b4d;
+width: 500px;
+height: 320px;
+line-height: 1;
+border: 1.5px solid rgb(0, 126, 199);
+}
+
+#overbar {
+  padding: 1.5%;
+  font-size: 10px;
+  font-weight: bold;
+  margin-bottom: 0px;
+  color: rgb(229, 244, 255, 0.6);
+  border-bottom: 1px solid rgb(0, 126, 199, .5);
+}
+
+#homepage{
+  position: fixed;
+  text-decoration: none;
+  color: yellow;
+  right: 2.5%;
+}
+
+#kiloArea{
+  background-color: #e6e6e6;
+  margin: 1.5%;
+  width: 95.5%;
+  height:69%;
+  line-height:22px;
+	font-family: "Open Sans", Candara, "DejaVu Sans", Sans-Serif, LocalCandara, Arial, Helvetica;
+	font-size: 13px;
+	font-style: normal;
+	font-variant: normal;
+	font-weight: 400;
+	line-height: 20px;
+}
+
+input{
+  font-size: 11.5px;
+
+}
+
+#obf {
+  display: inline-block;
+  margin-bottom: 0px;
+  margin-left: 1.5%;
+  color: #002b4d;
+  cursor: pointer;
+}
+
+#decode {
+  margin-bottom: 0px;
+  margin-left: 1.5%;
+  color: #002b4d;
+  cursor: pointer;
+}
+
+select{
+  display: inline-block;
+  margin-bottom: 0px;
+  margin-left: 1.5%;
+  color: #002b4d;
+  background-color: #e6e6e6;
+  text-align: center;
+  font-size: 11px;
+	width: 8.5em;
+}
+
+#notice {
+  font-size: 10px;
+  margin-top: 1.5%;
+  padding: .8% 0% 0% 1.7%;
+  color: rgb(229, 244, 255, 0.6);
+  border-top: 1px solid rgb(0, 126, 199, .5);
+}
+
+#versions {
+  color: rgb(0, 126, 199);
+   text-decoration: none;
+}

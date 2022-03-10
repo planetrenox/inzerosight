@@ -1,0 +1,64 @@
+/*
+https://github.com/PlanetRenox/in0sight
+Contact: planetrenox@pm.me
+*/
+@font-face {
+  font-family: "LocalCandara";
+  src: url("/resources/fonts/candara-webfont.woff") format("woff");
+}
+
+#zerosight-1p2-node, #zerosight-pre-node {
+  padding: 15px;
+  background-color: rgb(6, 129, 194, .15);
+}
+
+#zerosight-pre-node-header, #zerosight-1p2-node-header {
+  padding: 0px;
+}
+
+#zerosight-notice {
+  margin-bottom: 0px;
+  margin-top: 10px;
+  color: white;
+  text-align: center;
+  background-color: black;
+  font-size: 14px;
+}
+
+#zerosight-div {
+  position: fixed;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  top: 0;
+  right: 0;
+  /* ——————————————————————————————— */
+  font-family: Candara, LocalCandara, "DejaVu Sans", Sans-Serif, Arial, Helvetica;
+  background-color: rgb(234, 243, 250);
+  color: black;
+  /* ——————————————————————————————— */
+  border: 2.5px solid rgb(0, 126, 199);
+  z-index: 99999999;
+  padding: .25cm;
+}
+
+#zerosight-text-span {
+  position: relative;
+  font-size: 16px;
+  margin-right: .25cm;
+  top: 2px;
+}
+
+#zerosight-buttons-span {}
+
+#zerosight-button {
+  font-size: 12px;
+  margin-right: .25cm;
+}
+
+#zerosight-button-quit {
+  background-color: rgb(255, 153, 153);
+  font-size: 10px;
+  font-weight: bold;
+  color: white;
+}
