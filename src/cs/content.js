@@ -1,7 +1,4 @@
-/*
-https://github.com/PlanetRenox/in0sight
-Contact: planetrenox@pm.me
-*/
+
 window.addEventListener("load", wait, false);
 
 function wait()
