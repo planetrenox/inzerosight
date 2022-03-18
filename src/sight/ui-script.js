@@ -75,7 +75,7 @@ document.getElementById("decode").addEventListener("click", function ()
             versionAlg = "version 1.1";
         }
     }
-    var kilo = "a";
+    var kilo = "";
     switch (versionAlg)
     {
         case "version 1.0":
@@ -100,14 +100,14 @@ document.getElementById("decode").addEventListener("click", function ()
             decodeVproT(document.getElementById("kiloArea").value);
             break;
     }
-    document.getElementById("kiloArea").value += kilo;
+    document.getElementById("kiloArea").value = kilo;
 
 });
 
 // ------------------------------------------------------------------------------
-// Version ZWUS-6        Zero Width Unicode Standard Base 6
+// Version ZWUS-6        Zero Width Unicode Standard - Senary
 // Building Blocks:      200B 200C 200D 2060 FEFF 200E 180E(UNIFIER)
-//<editor-fold defaultstate="collapsed" desc="ZWUS-7">
+//<editor-fold defaultstate="collapsed" desc="ZWUS-6">
 const ZWUS_6 = {
     0: "\u{200B}", 1: "\u{200C}", 2: "\u{200D}", 3: "\u{2060}", 4: "\u{FEFF}", 5: "\u{200E}", 6: "\u{180E}",
     encode(text)
@@ -115,28 +115,12 @@ const ZWUS_6 = {
         var kilo = "";
         for (var i = 0; i < text.length; i++)
         {
-            kilo += text.codePointAt(i).toString(6).split("").map(function (x)
-            {
-                return ZWUS_6[x];
-            }).join("") + ZWUS_6[6];
-        } // BASE6 + UNIFIER
-
-        return kilo;
-    }, decode(text)
-    {
-        const reverse = ZWUS_6 => Object.fromEntries(Object.entries(ZWUS_6).map(x => x.reverse())) // THIS IS WRONG TODO
-        var kilo = text.split(ZWUS_6[6]);
-        var decoded = "";
-        for (var i = 0; i < kilo.length; i++)
-        {
-            decoded += kilo[i].map(function (x)
-            {
-                return reverse[x]; // BASE 6 TO 16
-            });
+            kilo += text.codePointAt(i).toString(6).split("").map(x => ZWUS_6[x]).join("") + ZWUS_6[6];
         }
-        return decoded.join("");
-    }
-
+        return kilo.substring(0, kilo.length - 1);
+    },
+    decode: text => text.split(ZWUS_6[6]).map(s => String.fromCharCode(parseInt(s.split("").map(c => Object.keys(ZWUS_6).find(k => ZWUS_6[k] === c)
+    ).join(""), 6).toString(10))).join("")
 };
 
 //</editor-fold>
