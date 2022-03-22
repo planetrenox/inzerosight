@@ -1,24 +1,10 @@
-// 2022-03-12, Sat 1:40
-
-// Generally, sites accept all zero width characters, however some sites make what i assume are manual restrictions for example with twitter and Protonmail.
-// But they never restrict ALL zero width characters because some of them are actually required for some sight and languages to function.
-// So we can always create a new 'limited' version in case they are ever needed.
-// ------------------------------------------------------------------------------
-// All versions          Universal information
-// Supported blocks:     200B FEFF 200C 200D 180E 200E 2060 00AD
-// In consideration:
-// Banned blocks:        200F 3164
-// https://unicode.scarfboy.com
-// ------------------------------------------------------------------------------
+/* 🄍 */
 
 document.getElementById("obf").addEventListener("click", function ()
 {
     if (document.getElementById("kiloArea").value === "")
     {
-        //document.getElementById("kiloArea").value = "The text box is empty.";
-        document.getElementById("kiloArea").value = "\u{1F10D}";
-        document.querySelector("#kiloArea").select();
-        document.execCommand("copy");
+        document.getElementById("kiloArea").value = "The text box is empty.";
         return;
     }
     var kilo = "";
@@ -98,6 +84,7 @@ document.getElementById("decode").addEventListener("click", function ()
 
 });
 
+// TODO (signed&unsigned) + no trailing unifier
 /** Zero Width Unicode Standard — Senary (🄍) */
 const ZWUS_6 = {
     0      : "\u{200B}",
