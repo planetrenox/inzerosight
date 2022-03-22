@@ -15,32 +15,35 @@ document.getElementById("obf").addEventListener("click", function ()
 {
     if (document.getElementById("kiloArea").value === "")
     {
-        document.getElementById("kiloArea").value = "The text box is empty.";
+        //document.getElementById("kiloArea").value = "The text box is empty.";
+        document.getElementById("kiloArea").value = "\u{1F10D}";
+        document.querySelector("#kiloArea").select();
+        document.execCommand("copy");
         return;
     }
     var kilo = "";
     switch (document.getElementById("dropdown").value)
     {
         case "version 1.0":
-            encodeV1_0(document.getElementById("kiloArea").value);
+            kilo = encodeV1_0(document.getElementById("kiloArea").value);
             break;
         case "version 1.1":
-            encodeV1_1(document.getElementById("kiloArea").value);
+            kilo = encodeV1_1(document.getElementById("kiloArea").value);
             break;
         case "version 1.2":
-            encodeV1_2(document.getElementById("kiloArea").value);
+            kilo = encodeV1_2(document.getElementById("kiloArea").value);
             break;
         case "version 1.3":
             kilo = ZWUS_6.encode(document.getElementById("kiloArea").value);
             break;
         case "limited twiT":
-            encodeVtwiT(document.getElementById("kiloArea").value);
+            kilo = encodeVtwiT(document.getElementById("kiloArea").value);
             break;
         case "limited proT":
-            encodeVproT(document.getElementById("kiloArea").value);
+            kilo = encodeVproT(document.getElementById("kiloArea").value);
             break;
         case "limited winT":
-            encodeVwinT(document.getElementById("kiloArea").value);
+            kilo = encodeVwinT(document.getElementById("kiloArea").value);
             break;
     }
     document.getElementById("kiloArea").value = kilo;
@@ -58,24 +61,15 @@ document.getElementById("decode").addEventListener("click", function ()
         document.getElementById("kiloArea").value = "The text box is empty.";
         return;
     }
+    let versionAlg = document.getElementById("dropdown").value;
 
-    var versionAlg = document.getElementById("dropdown").value;
-    // double check in case user picked incorrect version
-    if (document.getElementById("dropdown").value === "version 1.2")
+    if (document.getElementById("kiloArea").value
+    .replace(/[^\u200B\u200C\u200D\u2060\u00AD\uFEFF\u200E\u180E]/g, "").substring(0, 6) === V1P2.signature) // autopick if signature present
     {
-        var strippedVer = document.getElementById("kiloArea").value
-        .replace(/[^\u200B\u200C\u200D\u2060\u00AD\uFEFF\u200E\u180E]/g, "");
-        strippedVer = strippedVer.substring(0, 6);
-        if (strippedVer === "\u{200C}\u{200E}\u{FEFF}\u{00AD}\u{200D}\u{FEFF}")
-        {
-            versionAlg = "version 1.2";
-        }
-        else if ((versionAlg === "version 1.2") && !(strippedVer === "\u{200C}\u{200E}\u{FEFF}\u{00AD}\u{200D}\u{FEFF}"))
-        {
-            versionAlg = "version 1.1";
-        }
+        versionAlg = "version 1.2";
     }
-    var kilo = "";
+
+    let kilo = "";
     switch (versionAlg)
     {
         case "version 1.0":
@@ -104,31 +98,22 @@ document.getElementById("decode").addEventListener("click", function ()
 
 });
 
-// ------------------------------------------------------------------------------
-// Version ZWUS-6        Zero Width Unicode Standard - Senary
-// Building Blocks:      200B 200C 200D 2060 FEFF 200E 180E(UNIFIER)
-//<editor-fold defaultstate="collapsed" desc="ZWUS-6">
+/** Zero Width Unicode Standard — Senary (🄍) */
 const ZWUS_6 = {
-    0: "\u{200B}", 1: "\u{200C}", 2: "\u{200D}", 3: "\u{2060}", 4: "\u{FEFF}", 5: "\u{200E}", 6: "\u{180E}",
-    encode(text)
-    {
-        var kilo = "";
-        for (var i = 0; i < text.length; i++)
-        {
-            kilo += text.codePointAt(i).toString(6).split("").map(x => ZWUS_6[x]).join("") + ZWUS_6[6];
-        }
-        return kilo.substring(0, kilo.length - 1);
-    },
-    decode: text => text.split(ZWUS_6[6]).map(s => String.fromCharCode(parseInt(s.split("").map(c => Object.keys(ZWUS_6).find(k => ZWUS_6[k] === c)
-    ).join(""), 6).toString(10))).join("")
+    0      : "\u{200B}",
+    1      : "\u{200C}",
+    2      : "\u{200D}",
+    3      : "\u{2060}",
+    4      : "\u{FEFF}",
+    5      : "\u{200E}",
+    UNIFIER: "\u{180E}",
+    encode : text => text.split("").map(x => x.codePointAt(0).toString(6).split("").map(x => ZWUS_6[x]).join("") + ZWUS_6.UNIFIER).join(""),
+    decode : text => text.split(ZWUS_6.UNIFIER).map(s => String.fromCharCode(parseInt(s.split("").map(c => Object.keys(ZWUS_6).find(k => ZWUS_6[k] === c)).join(""), 6).toString(10))).join("")
 };
-
-//</editor-fold>
 
 // ------------------------------------------------------------------------------
 // Version 1.2           Focus here is on scalability, support for multiple languages and special characters
-// Building blocks:      200B 200C 200D 180E(Dedicated to Space) 2060 00AD FEFF 200E
-// Signature:            \u{200C}\u{200E}\u{FEFF}\u{00AD}\u{200D}\u{FEFF}
+const V1P2 = {signature: "\u{200C}\u{200E}\u{FEFF}\u{00AD}\u{200D}\u{FEFF}"};
 //<editor-fold defaultstate="collapsed" desc="Version 1.2">
 const dictionaryV1_2root = {
     0   : "\u{200C}\u{FEFF}",
@@ -488,17 +473,17 @@ const dictionaryV1_2izs = {
     // "switch dictionary": "\u{200E}\u{FEFF}" // Stays the same across all dictionaries
 };
 
-function encodeV1_2(sec)
+function encodeV1_2(text)
 {
     var kilo = "\u{200C}\u{200E}\u{FEFF}\u{00AD}\u{200D}\u{FEFF}"; // sign with "1.2"
     var currDictionary = dictionaryV1_2root;
-    for (var i = 0; i < sec.length; i++) // iterate each charcter
+    for (var i = 0; i < text.length; i++) // iterate each charcter
     {
         var itWasUpperCase = false;
-        itWasUpperCase = sec.charAt(i) != sec.charAt(i).toLowerCase();
-        if (dictionaryV1_2root[sec.charAt(i).toLowerCase()] !== undefined) // Check to see if character is in root dictionary
+        itWasUpperCase = text.charAt(i) != text.charAt(i).toLowerCase();
+        if (dictionaryV1_2root[text.charAt(i).toLowerCase()] !== undefined) // Check to see if character is in root dictionary
         {
-            if ((currDictionary != dictionaryV1_2root) && (sec.charAt(i) !== ' ') && (sec.charAt(i) !== ',') && (sec.charAt(i) !== '.') && (sec.charAt(i) !== '\n') && (isNaN(sec.charAt(i))))
+            if ((currDictionary != dictionaryV1_2root) && (text.charAt(i) !== ' ') && (text.charAt(i) !== ',') && (text.charAt(i) !== '.') && (text.charAt(i) !== '\n') && (isNaN(text.charAt(i))))
             {
                 // insert sequence into unicode path to let deobfuscate method know to start using root dictionary.
                 kilo += "\u{200E}\u{FEFF}\u{180E}\u{180E}";
@@ -508,9 +493,9 @@ function encodeV1_2(sec)
             {
                 kilo += "\u{00AD}\u{00AD}";
             }
-            kilo += dictionaryV1_2root[sec.charAt(i).toLowerCase()];
+            kilo += dictionaryV1_2root[text.charAt(i).toLowerCase()];
         }
-        else if (dictionaryV1_2ru[sec.charAt(i).toLowerCase()] !== undefined) // Check to see if character is in Russian dictionary
+        else if (dictionaryV1_2ru[text.charAt(i).toLowerCase()] !== undefined) // Check to see if character is in Russian dictionary
         {
             if (currDictionary != dictionaryV1_2ru)
             {
@@ -522,9 +507,9 @@ function encodeV1_2(sec)
             {
                 kilo += "\u{00AD}\u{00AD}";
             }
-            kilo += dictionaryV1_2ru[sec.charAt(i).toLowerCase()];
+            kilo += dictionaryV1_2ru[text.charAt(i).toLowerCase()];
         }
-        else if (dictionaryV1_2sc[sec.charAt(i).toLowerCase()] !== undefined) // Check to see if character is in this dictionary
+        else if (dictionaryV1_2sc[text.charAt(i).toLowerCase()] !== undefined) // Check to see if character is in this dictionary
         {
             if (currDictionary != dictionaryV1_2sc)
             {
@@ -536,9 +521,9 @@ function encodeV1_2(sec)
             {
                 kilo += "\u{00AD}\u{00AD}";
             }
-            kilo += dictionaryV1_2sc[sec.charAt(i).toLowerCase()];
+            kilo += dictionaryV1_2sc[text.charAt(i).toLowerCase()];
         }
-        else if (dictionaryV1_2jaHira[sec.charAt(i).toLowerCase()] !== undefined) // Check to see if character is in this dictionary
+        else if (dictionaryV1_2jaHira[text.charAt(i).toLowerCase()] !== undefined) // Check to see if character is in this dictionary
         {
             if (currDictionary != dictionaryV1_2jaHira)
             {
@@ -550,9 +535,9 @@ function encodeV1_2(sec)
             {
                 kilo += "\u{00AD}\u{00AD}";
             }
-            kilo += dictionaryV1_2jaHira[sec.charAt(i).toLowerCase()];
+            kilo += dictionaryV1_2jaHira[text.charAt(i).toLowerCase()];
         }
-        else if (dictionaryV1_2jaHira2[sec.charAt(i).toLowerCase()] !== undefined) // Check to see if character is in this dictionary
+        else if (dictionaryV1_2jaHira2[text.charAt(i).toLowerCase()] !== undefined) // Check to see if character is in this dictionary
         {
             if (currDictionary != dictionaryV1_2jaHira2)
             {
@@ -564,9 +549,9 @@ function encodeV1_2(sec)
             {
                 kilo += "\u{00AD}\u{00AD}";
             }
-            kilo += dictionaryV1_2jaHira2[sec.charAt(i).toLowerCase()];
+            kilo += dictionaryV1_2jaHira2[text.charAt(i).toLowerCase()];
         }
-        else if (dictionaryV1_2jaHira3[sec.charAt(i).toLowerCase()] !== undefined) // Check to see if character is in this dictionary
+        else if (dictionaryV1_2jaHira3[text.charAt(i).toLowerCase()] !== undefined) // Check to see if character is in this dictionary
         {
             if (currDictionary != dictionaryV1_2jaHira3)
             {
@@ -578,9 +563,9 @@ function encodeV1_2(sec)
             {
                 kilo += "\u{00AD}\u{00AD}";
             }
-            kilo += dictionaryV1_2jaHira3[sec.charAt(i).toLowerCase()];
+            kilo += dictionaryV1_2jaHira3[text.charAt(i).toLowerCase()];
         }
-        else if (dictionaryV1_2izs[sec.charAt(i).toLowerCase()] !== undefined) // Check to see if character is in this dictionary
+        else if (dictionaryV1_2izs[text.charAt(i).toLowerCase()] !== undefined) // Check to see if character is in this dictionary
         {
             if (currDictionary != dictionaryV1_2izs)
             {
@@ -592,15 +577,10 @@ function encodeV1_2(sec)
             {
                 kilo += "\u{00AD}\u{00AD}";
             }
-            kilo += dictionaryV1_2izs[sec.charAt(i).toLowerCase()];
+            kilo += dictionaryV1_2izs[text.charAt(i).toLowerCase()];
         }
     }
-    document.getElementById("kiloArea").value = kilo;
-    var copyText = document.querySelector("#kiloArea");
-    copyText.select();
-    document.execCommand("copy");
-    document.getElementById("kiloArea").value = "Copied to clipboard. Here is a copy just in case -> " + kilo +
-        " <- \n\n• During De-obfuscation pick the correct version. \n\n• It's okay if there is extra text mixed up with it. \n\n\n\nVisit homepage to report bugs or make suggestions.";
+    return kilo;
 }
 
 function decodeV1_2(text)
@@ -792,12 +772,7 @@ function encodeV1_1(sec)
             kilo += "\u{200E}\u{200B}\u{200E}\u{00AD}";
         }
     }
-    document.getElementById("kiloArea").value = kilo;
-    var copyText = document.querySelector("#kiloArea");
-    copyText.select();
-    document.execCommand("copy");
-    document.getElementById("kiloArea").value = "Copied to clipboard. Here is a copy just in case -> " + kilo +
-        " <- \n\n• During De-obfuscation pick the correct version. \n\n• It's okay if there is extra text mixed up with it. \n\n\n\nVisit homepage to report bugs or make suggestions.";
+    return kilo;
 }
 
 function decodeV1_1(text)
@@ -973,12 +948,7 @@ function encodeV1_0(sec)
             kilo += "\u{200E}\u{200B}\u{200E}\u{00AD}";
         }
     }
-    document.getElementById("kiloArea").value = kilo;
-    var copyText = document.querySelector("#kiloArea");
-    copyText.select();
-    document.execCommand("copy");
-    document.getElementById("kiloArea").value = "Copied to clipboard. Here is a copy just in case -> " + kilo +
-        " <- \n\n• During De-obfuscation pick the correct version. \n\n• It's okay if there is extra text mixed up with it. \n\n\n\nVisit homepage to report bugs or make suggestions.";
+    return kilo;
 }
 
 function decodeV1_0(text)
@@ -1114,12 +1084,7 @@ function encodeVtwiT(sec)
             kilo += "\u{180E}\u{200D}";
         }
     }
-    document.getElementById("kiloArea").value = kilo;
-    var copyText = document.querySelector("#kiloArea");
-    copyText.select();
-    document.execCommand("copy");
-    document.getElementById("kiloArea").value = "Copied to clipboard. Here is a copy just in case -> " + kilo +
-        " <- \n\n• During De-obfuscation pick the correct version. \n\n• It's okay if there is extra text mixed up with it. \n\n\n\nVisit homepage to report bugs or make suggestions.";
+    return kilo;
 }
 
 function decodeVtwiT(text)
@@ -1235,12 +1200,7 @@ function encodeVproT(sec)
             kilo += dictionaryV2_1[sec.charAt(i)];
         }
     }
-    document.getElementById("kiloArea").value = kilo;
-    var copyText = document.querySelector("#kiloArea");
-    copyText.select();
-    document.execCommand("copy");
-    document.getElementById("kiloArea").value = "Copied to clipboard. Here is a copy just in case -> " + kilo +
-        " <- \n\n• During De-obfuscation pick the correct version. \n\n• It's okay if there is extra text mixed up with it. \n\n\n\nVisit homepage to report bugs or make suggestions.";
+    return kilo;
 }
 
 function decodeVproT(text)
@@ -1338,12 +1298,7 @@ function encodeVwinT(sec)
             kilo += "\u{180E}\u{200D}";
         }
     }
-    document.getElementById("kiloArea").value = kilo;
-    var copyText = document.querySelector("#kiloArea");
-    copyText.select();
-    document.execCommand("copy");
-    document.getElementById("kiloArea").value = "Copied to clipboard. Here is a copy just in case -> " + kilo +
-        " <- \n\n• During De-obfuscation pick the correct version. \n\n• It's okay if there is extra text mixed up with it. \n\n\n\nVisit homepage to report bugs or make suggestions.";
+    return kilo;
 }
 
 function decodeVwinT(text)
