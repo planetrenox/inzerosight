@@ -1,5 +1,3 @@
-/* 🄍 */
-
 document.getElementById("obf").addEventListener("click", function ()
 {
     if (document.getElementById("kiloArea").value === "")
@@ -7,36 +5,34 @@ document.getElementById("obf").addEventListener("click", function ()
         document.getElementById("kiloArea").value = "The text box is empty.";
         return;
     }
-    var kilo = "";
     switch (document.getElementById("dropdown").value)
     {
         case "version 1.0":
-            kilo = encodeV1_0(document.getElementById("kiloArea").value);
+            document.getElementById("kiloArea").value = encodeV1_0(document.getElementById("kiloArea").value);
             break;
         case "version 1.1":
-            kilo = encodeV1_1(document.getElementById("kiloArea").value);
+            document.getElementById("kiloArea").value = encodeV1_1(document.getElementById("kiloArea").value);
             break;
         case "version 1.2":
-            kilo = encodeV1_2(document.getElementById("kiloArea").value);
+            document.getElementById("kiloArea").value = encodeV1_2(document.getElementById("kiloArea").value);
             break;
-        case "version 1.3":
-            kilo = ZWUS_6.encode(document.getElementById("kiloArea").value);
+        case "ZWUS-6":
+            document.getElementById("kiloArea").value = ZWUS_6.encode(document.getElementById("kiloArea").value);
             break;
         case "limited twiT":
-            kilo = encodeVtwiT(document.getElementById("kiloArea").value);
+            document.getElementById("kiloArea").value = encodeVtwiT(document.getElementById("kiloArea").value);
             break;
         case "limited proT":
-            kilo = encodeVproT(document.getElementById("kiloArea").value);
+            document.getElementById("kiloArea").value = encodeVproT(document.getElementById("kiloArea").value);
             break;
         case "limited winT":
-            kilo = encodeVwinT(document.getElementById("kiloArea").value);
+            document.getElementById("kiloArea").value = encodeVwinT(document.getElementById("kiloArea").value);
             break;
     }
-    document.getElementById("kiloArea").value = kilo;
     document.querySelector("#kiloArea").select();
     document.execCommand("copy");
-    document.getElementById("kiloArea").value = "Copied to clipboard. Here is a copy just in case -> " + kilo +
-        " <- \n\n• During De-obfuscation pick the correct version. \n\n• It's okay if there is extra text mixed up with it. \n\n\n\nVisit homepage to report bugs or make suggestions.";
+    document.getElementById("kiloArea").value = "Copied to clipboard. Here is a copy just in case -> " + document.getElementById("kiloArea").value +
+        " <- \n\n• During decoding pick the correct version. \n• It's okay if there is extra text mixed up with it.";
 
 });
 
@@ -50,42 +46,40 @@ document.getElementById("decode").addEventListener("click", function ()
     let versionAlg = document.getElementById("dropdown").value;
 
     if (document.getElementById("kiloArea").value
-    .replace(/[^\u200B\u200C\u200D\u2060\u00AD\uFEFF\u200E\u180E]/g, "").substring(0, 6) === V1P2.signature) // autopick if signature present
+    .replace(/[^\u200B\u200C\u200D\u2060\u00AD\uFEFF\u200E\u180E]/g, "").substring(0, 6) === V1P2.signature) // autopick/override if signature present
     {
         versionAlg = "version 1.2";
     }
 
-    let kilo = "";
     switch (versionAlg)
     {
         case "version 1.0":
-            decodeV1_0(document.getElementById("kiloArea").value);
+            document.getElementById("kiloArea").value = decodeV1_0(document.getElementById("kiloArea").value);
             break;
         case "version 1.1":
-            decodeV1_1(document.getElementById("kiloArea").value);
+            document.getElementById("kiloArea").value = decodeV1_1(document.getElementById("kiloArea").value);
             break;
         case "version 1.2":
-            decodeV1_2(document.getElementById("kiloArea").value);
+            document.getElementById("kiloArea").value = decodeV1_2(document.getElementById("kiloArea").value);
             break;
-        case "version 1.3":
-            kilo = ZWUS_6.decode(document.getElementById("kiloArea").value);
+        case "ZWUS-6":
+            document.getElementById("kiloArea").value = ZWUS_6.decode(document.getElementById("kiloArea").value);
             break;
         case "limited twiT":
-            decodeVtwiT(document.getElementById("kiloArea").value);
+            document.getElementById("kiloArea").value = decodeVtwiT(document.getElementById("kiloArea").value);
             break;
         case "limited winT":
-            decodeVwinT(document.getElementById("kiloArea").value);
+            document.getElementById("kiloArea").value = decodeVwinT(document.getElementById("kiloArea").value);
             break;
         case "limited proT":
-            decodeVproT(document.getElementById("kiloArea").value);
+            document.getElementById("kiloArea").value = decodeVproT(document.getElementById("kiloArea").value);
             break;
     }
-    document.getElementById("kiloArea").value = kilo;
 
 });
 
-// TODO (signed&unsigned) + no trailing unifier
-/** Zero Width Unicode Standard — Senary (🄍) */
+// ------------------------------------------------------------------------------
+/** Zero Width Unicode Standard — Senary */
 const ZWUS_6 = {
     0      : "\u{200B}",
     1      : "\u{200C}",
@@ -94,8 +88,9 @@ const ZWUS_6 = {
     4      : "\u{FEFF}",
     5      : "\u{200E}",
     UNIFIER: "\u{180E}",
-    encode : text => text.split("").map(x => x.codePointAt(0).toString(6).split("").map(x => ZWUS_6[x]).join("") + ZWUS_6.UNIFIER).join(""),
-    decode : text => text.split(ZWUS_6.UNIFIER).map(s => String.fromCharCode(parseInt(s.split("").map(c => Object.keys(ZWUS_6).find(k => ZWUS_6[k] === c)).join(""), 6).toString(10))).join("")
+
+    encode: text => text.split('').map(x => x.codePointAt(0).toString(6).split('').map(x => ZWUS_6[x]).join('') + ZWUS_6.UNIFIER).join('').slice(0, -1),
+    decode: text => text.split(ZWUS_6.UNIFIER).map(s => String.fromCharCode(parseInt(s.split('').map(c => Object.keys(ZWUS_6).find(k => ZWUS_6[k] === c)).join(''), 6).toString(10))).join('')
 };
 
 // ------------------------------------------------------------------------------
@@ -655,7 +650,7 @@ function decodeV1_2(text)
             }
         }
     }
-    document.getElementById("kiloArea").value = kilo;
+    return kilo;
 }
 
 //</editor-fold>
@@ -828,7 +823,7 @@ function decodeV1_1(text)
             }
         }
     }
-    document.getElementById("kiloArea").value = kilo;
+    return kilo;
 }
 
 // ==============================================================================
@@ -999,7 +994,7 @@ function decodeV1_0(text)
             }
         }
     }
-    document.getElementById("kiloArea").value = kilo;
+    return kilo;
 }
 
 // ==============================================================================
@@ -1110,7 +1105,7 @@ function decodeVtwiT(text)
             }
         }
     }
-    document.getElementById("kiloArea").value = kilo;
+    return kilo;
 }
 
 // ==============================================================================
@@ -1207,7 +1202,7 @@ function decodeVproT(text)
             }
         }
     }
-    document.getElementById("kiloArea").value = kilo;
+    return kilo;
 }
 
 // ==============================================================================
@@ -1324,7 +1319,7 @@ function decodeVwinT(text)
             }
         }
     }
-    document.getElementById("kiloArea").value = kilo;
+    return kilo;
 }
 
 // ==============================================================================

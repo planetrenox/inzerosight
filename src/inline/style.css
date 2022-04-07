@@ -1,10 +1,6 @@
-/*
-https://github.com/PlanetRenox/in0sight
-Contact: planetrenox@pm.me
-*/
 @font-face {
   font-family: "LocalCandara";
-  src: url("/resources/fonts/candara-webfont.woff") format("woff");
+  src: url("/index/resources/fonts/candara-webfont.woff") format("woff");
 }
 
 #zerosight-1p2-node, #zerosight-pre-node {

@@ -29,7 +29,7 @@ function quit()
   document.getElementById("zerosight-div").remove();
 }
 //———————————————————————————————————————————————————————————————————————————————————
-// Everything below would be better understood in src/sight/sight-script for the first time
+// Everything below would be better understood in src/index/index-script for the first time
 //———————————————————————————————————————————————————————————————————————————————————
 function deobfuscateV1_2(text)
 {
