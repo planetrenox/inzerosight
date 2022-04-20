@@ -23,18 +23,27 @@
         <input id="decode" type="button" name="button" value="decode from text"/>
 
         <select id="dropdown">
+            <optgroup label="Standard">
             <option>ZWUS-6</option>
+            </optgroup>
+            <optgroup label="Depreciated">
             <option>version 1.2</option>
             <option>version 1.1</option>
             <option>version 1.0</option>
+            </optgroup>
+            <optgroup label="Compatibility">
             <option>limited proT</option>
             <option>limited twiT</option>
             <option>limited winT</option>
+            <option>no encoding</option>
+            </optgroup>
         </select>
 
         <select id="dropdownEncryption">
             <option>no encryption</option>
-            <!-- <option>RC6 (Rivest Cipher 6)</option> -->
+            <optgroup label="Rivest Cipher">
+            <option>RC4</option>
+            </optgroup>
         </select>
 
         <p id="notice">

@@ -1,9 +1,17 @@
+var crypto = require('crypto')
+
 document.getElementById("obf").addEventListener("click", function ()
 {
     if (document.getElementById("kiloArea").value === "")
     {
         document.getElementById("kiloArea").value = "The text box is empty.";
         return;
+    }
+    switch (document.getElementById("dropdownEncryption").value)
+    {
+        case "RC4":
+            document.getElementById("kiloArea").value = RC4(window.prompt("Password"), document.getElementById("kiloArea").value);
+            break;
     }
     switch (document.getElementById("dropdown").value)
     {
@@ -17,7 +25,9 @@ document.getElementById("obf").addEventListener("click", function ()
             document.getElementById("kiloArea").value = encodeV1_2(document.getElementById("kiloArea").value);
             break;
         case "ZWUS-6":
-            document.getElementById("kiloArea").value = ZWUS_6.encode(document.getElementById("kiloArea").value);
+            document.getElementById("kiloArea").value = RC0(window.prompt("Password"), document.getElementById("kiloArea").value);
+            return;
+            //document.getElementById("kiloArea").value = ZWUS_6.encode(document.getElementById("kiloArea").value);
             break;
         case "limited twiT":
             document.getElementById("kiloArea").value = encodeVtwiT(document.getElementById("kiloArea").value);
@@ -43,15 +53,7 @@ document.getElementById("decode").addEventListener("click", function ()
         document.getElementById("kiloArea").value = "The text box is empty.";
         return;
     }
-    let versionAlg = document.getElementById("dropdown").value;
-
-    if (document.getElementById("kiloArea").value
-    .replace(/[^\u200B\u200C\u200D\u2060\u00AD\uFEFF\u200E\u180E]/g, "").substring(0, 6) === V1P2.signature) // autopick/override if signature present
-    {
-        versionAlg = "version 1.2";
-    }
-
-    switch (versionAlg)
+    switch (document.getElementById("dropdown").value)
     {
         case "version 1.0":
             document.getElementById("kiloArea").value = decodeV1_0(document.getElementById("kiloArea").value);
@@ -75,23 +77,116 @@ document.getElementById("decode").addEventListener("click", function ()
             document.getElementById("kiloArea").value = decodeVproT(document.getElementById("kiloArea").value);
             break;
     }
+    switch (document.getElementById("dropdownEncryption").value)
+    {
+        case "RC4":
+            document.getElementById("kiloArea").value = RC4(window.prompt("Password"), document.getElementById("kiloArea").value);
+            break;
+    }
 
 });
 
-// ------------------------------------------------------------------------------
 /** Zero Width Unicode Standard — Senary */
 const ZWUS_6 = {
-    0      : "\u{200B}",
-    1      : "\u{200C}",
-    2      : "\u{200D}",
-    3      : "\u{2060}",
-    4      : "\u{FEFF}",
-    5      : "\u{200E}",
-    UNIFIER: "\u{180E}",
+    0      : "\u{180E}",
+    1      : "\u{200B}",
+    2      : "\u{200C}",
+    3      : "\u{200D}",
+    4      : "\u{200E}",
+    5      : "\u{2060}",
+    UNIFIER: "\u{FEFF}",
 
-    encode: text => text.split('').map(x => x.codePointAt(0).toString(6).split('').map(x => ZWUS_6[x]).join('') + ZWUS_6.UNIFIER).join('').slice(0, -1),
-    decode: text => text.split(ZWUS_6.UNIFIER).map(s => String.fromCharCode(parseInt(s.split('').map(c => Object.keys(ZWUS_6).find(k => ZWUS_6[k] === c)).join(''), 6).toString(10))).join('')
+    encode: text => Array.from(text).map(x => x.codePointAt(0).toString(6).split('').map(x => ZWUS_6[x]).join('')).join(ZWUS_6.UNIFIER),
+    decode: text => text.split(ZWUS_6.UNIFIER).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(ZWUS_6).find(k => ZWUS_6[k] === z)).join(''), 6))).join(''),
 };
+
+/** implementation only for plaintext < 256 characters  */
+function RC4(keyStr, plaintextStr)
+{
+
+    let s             = [],
+        j             = 0,
+        x,
+        ciphertextStr = '';
+    for (let i = 0; i < 256; i++)
+    {
+        s[i] = i;
+    }
+    for (let i = 0; i < 256; i++)
+    {
+        j = (j + s[i] + keyStr.charCodeAt(i % keyStr.length)) % 256;
+        x = s[i];
+        s[i] = s[j];
+        s[j] = x;
+    }
+    let i = 0;
+    j = 0;
+    for (let y = 0; y < plaintextStr.length; y++)
+    {
+        i = (i + 1) % 256;
+        j = (j + s[i]) % 256;
+        x = s[i];
+        s[i] = s[j];
+        s[j] = x;
+        ciphertextStr += String.fromCharCode(plaintextStr.charCodeAt(y) ^ s[(s[i] + s[j]) % 256]);
+    }
+    return ciphertextStr;
+}
+
+function RC6_VANILLA(KEY, PLAINTEXT)
+{
+    const DWORD_PER_BLOCK = 4;
+    const DWORD_PER_KEY = 4;
+
+    let A = new Uint32Array(DWORD_PER_BLOCK);
+    let B = new Uint32Array(DWORD_PER_BLOCK);
+    let C = new Uint32Array(DWORD_PER_BLOCK);
+    let D = new Uint32Array(DWORD_PER_BLOCK);
+    let DEBUG_KEY = new Uint32Array(DWORD_PER_KEY);
+
+    console.log(to64bitFloat())
+    //     // set A to array of 128 zero bits
+    //     let A = [];
+    //     for (let i = 0; i < bits_BLOCK; i++)
+    //     {
+    //         A.push(0);
+    //     }
+    //
+    //
+    //
+    //     B = B + S[0]
+    //     D = D + S[1]
+    //     for i = 1 to r do
+    // {
+    //     t = (B * (2B + 1)) <<< lg w
+    //                               u = (D * (2D + 1)) <<< lg w
+    //                                                         A = ((A ^ t) <<< u) + S[2i]
+    //     C = ((C ^ u) <<< t) + S[2i + 1]
+    //     (A, B, C, D)  =  (B, C, D, A)
+    // }
+    //     A = A + S[2r + 2]
+    //     C = C + S[2r + 3]
+}
+
+function to64bitFloat(number)
+{
+    var i,
+        result = "";
+    var dv = new DataView(new ArrayBuffer(8));
+
+    dv.setFloat64(0, number, false);
+
+    for (i = 0; i < 8; i++)
+    {
+        var bits = dv.getUint8(i).toString(2);
+        if (bits.length < 8)
+        {
+            bits = new Array(8 - bits.length).fill('0').join("") + bits;
+        }
+        result += bits;
+    }
+    return result;
+}
 
 // ------------------------------------------------------------------------------
 // Version 1.2           Focus here is on scalability, support for multiple languages and special characters
