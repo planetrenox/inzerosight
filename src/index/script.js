@@ -1,5 +1,3 @@
-var crypto = require('crypto')
-
 document.getElementById("obf").addEventListener("click", function ()
 {
     if (document.getElementById("kiloArea").value === "")
@@ -25,7 +23,7 @@ document.getElementById("obf").addEventListener("click", function ()
             document.getElementById("kiloArea").value = encodeV1_2(document.getElementById("kiloArea").value);
             break;
         case "ZWUS-6":
-            document.getElementById("kiloArea").value = RC0(window.prompt("Password"), document.getElementById("kiloArea").value);
+            document.getElementById("kiloArea").value = RC6_VANILLA(window.prompt("Password"), document.getElementById("kiloArea").value);
             return;
             //document.getElementById("kiloArea").value = ZWUS_6.encode(document.getElementById("kiloArea").value);
             break;
@@ -100,92 +98,75 @@ const ZWUS_6 = {
     decode: text => text.split(ZWUS_6.UNIFIER).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(ZWUS_6).find(k => ZWUS_6[k] === z)).join(''), 6))).join(''),
 };
 
-/** implementation only for plaintext < 256 characters  */
-function RC4(keyStr, plaintextStr)
-{
+const toBinString = (bytes) =>
+    bytes.reduce((str, byte) => str + byte.toString(2).padStart(32, '0'), '');
 
-    let s             = [],
-        j             = 0,
-        x,
-        ciphertextStr = '';
-    for (let i = 0; i < 256; i++)
-    {
-        s[i] = i;
-    }
-    for (let i = 0; i < 256; i++)
-    {
-        j = (j + s[i] + keyStr.charCodeAt(i % keyStr.length)) % 256;
-        x = s[i];
-        s[i] = s[j];
-        s[j] = x;
-    }
-    let i = 0;
-    j = 0;
-    for (let y = 0; y < plaintextStr.length; y++)
-    {
-        i = (i + 1) % 256;
-        j = (j + s[i]) % 256;
-        x = s[i];
-        s[i] = s[j];
-        s[j] = x;
-        ciphertextStr += String.fromCharCode(plaintextStr.charCodeAt(y) ^ s[(s[i] + s[j]) % 256]);
-    }
-    return ciphertextStr;
-}
-
+/**
+ RC6(w-bit/r/b-byte)
+ w: 1 DWORD PER BLOCK (4 BLOCKS TOTAL)
+ r: 20 ROUNDS
+ b: 16, 24, or 32 bytes
+ */
 function RC6_VANILLA(KEY, PLAINTEXT)
 {
-    const DWORD_PER_BLOCK = 4;
-    const DWORD_PER_KEY = 4;
+
+    const INT_ROUNDS = 20;
+    const P = 0xB7E15163;
+    const Q = 0x9E3779B9;
+    const DWORD_PER_BLOCK = 1;
+    const DWORD_KEY = 4;
+    const w = 64;
+    const u = w / 8;
+    const c = 128 / w;
+    const LOG_w = Math.log(w / Math.log(2));
+
+
 
     let A = new Uint32Array(DWORD_PER_BLOCK);
     let B = new Uint32Array(DWORD_PER_BLOCK);
     let C = new Uint32Array(DWORD_PER_BLOCK);
     let D = new Uint32Array(DWORD_PER_BLOCK);
-    let DEBUG_KEY = new Uint32Array(DWORD_PER_KEY);
+    let S = new Array((2 * INT_ROUNDS) + 3);
+    let L = new Uint32Array(DWORD_KEY);
 
-    console.log(to64bitFloat())
-    //     // set A to array of 128 zero bits
-    //     let A = [];
-    //     for (let i = 0; i < bits_BLOCK; i++)
-    //     {
-    //         A.push(0);
-    //     }
-    //
-    //
-    //
-    //     B = B + S[0]
-    //     D = D + S[1]
-    //     for i = 1 to r do
+    // for (let i = 1; i < (2 * INT_ROUNDS) + 3; i++)
     // {
-    //     t = (B * (2B + 1)) <<< lg w
-    //                               u = (D * (2D + 1)) <<< lg w
-    //                                                         A = ((A ^ t) <<< u) + S[2i]
-    //     C = ((C ^ u) <<< t) + S[2i + 1]
-    //     (A, B, C, D)  =  (B, C, D, A)
+    //     S[i] = S[i - 1] + Q;
     // }
-    //     A = A + S[2r + 2]
-    //     C = C + S[2r + 3]
-}
 
-function to64bitFloat(number)
-{
-    var i,
-        result = "";
-    var dv = new DataView(new ArrayBuffer(8));
+    S[0] = P;
+    for (let i = 1; i < (2 * INT_ROUNDS) + 3; i++)
+    S[i] = S[i - 1] + Q;
+    let i,
+        j;
+    i = 0;
+    j = 0;
 
-    dv.setFloat64(0, number, false);
-
-    for (i = 0; i < 8; i++)
+    let v = 3 * Math.max(c, (2 * INT_ROUNDS) + 4)
+    for (let s = 1; s < v; i++)
     {
-        var bits = dv.getUint8(i).toString(2);
-        if (bits.length < 8)
-        {
-            bits = new Array(8 - bits.length).fill('0').join("") + bits;
-        }
-        result += bits;
+        A = S[i] = util.ROTL(S[i] + A + B, 3);
+        B = L[j] = util.ROTL(L[j] + A + B, A + B);
+        i = (i + 1) % (2 * INT_ROUNDS + 4);
+        j = (j + 1) % c;
     }
-    return result;
+
+    // ENCRYPTION
+
+    B = B + S[0]
+    D = D + S[1]
+    for (let i = 1; i < INT_ROUNDS; i++)
+    {
+        let t = util.ROTL((B * (2 * B + 1)), LOG_w);
+        let u = util.ROTL((D * (2 * D + 1)), LOG_w);
+        A = (util.ROTL(A ^ t, u)) + S[2 * i];
+        C = (util.ROTL(C ^ u, t)) + S[2 * i + 1];
+        [A, B, C, D] = [B, C, D, A];
+    }
+    A = A + S[2 * INT_ROUNDS + 2];
+    C = C + S[2 * INT_ROUNDS + 3];
+    console.log(A, B, C, D);
+
 }
 
 // ------------------------------------------------------------------------------
@@ -1421,5 +1402,191 @@ function decodeVwinT(text)
 //  end of version 2.3
 // ==============================================================================
 //</editor-fold>
+
+// Crypto utilities
+const util = Crypto.util = {
+
+    // Bit-wise rotate left
+    ROTL: function (n, b)
+    {
+        return (n << b) | (n >>> (32 - b));
+    },
+
+    // Bit-wise rotate right
+    ROTR: function (n, b)
+    {
+        return (n << (32 - b)) | (n >>> b);
+    },
+
+    // Swap big-endian to little-endian and vice versa
+    endian: function (n)
+    {
+
+        // If number given, swap endian
+        if (n.constructor == Number)
+        {
+            return util.ROTL(n, 8) & 0x00FF00FF |
+                util.ROTL(n, 24) & 0xFF00FF00;
+        }
+
+        // Else, assume array and swap all items
+        for (var i = 0; i < n.length; i++)
+            n[i] = util.endian(n[i]);
+        return n;
+
+    },
+
+    // Generate an array of any length of random bytes
+    randomBytes: function (n)
+    {
+        for (var bytes = []; n > 0; n--)
+            bytes.push(Math.floor(Math.random() * 256));
+        return bytes;
+    },
+
+    // Convert a byte array to big-endian 32-bit words
+    bytesToWords: function (bytes)
+    {
+        for (var words = [],
+                 i     = 0,
+                 b     = 0; i < bytes.length; i++, b += 8)
+            words[b >>> 5] |= bytes[i] << (24 - b % 32);
+        return words;
+    },
+
+    // Convert big-endian 32-bit words to a byte array
+    wordsToBytes: function (words)
+    {
+        for (var bytes = [],
+                 b     = 0; b < words.length * 32; b += 8)
+            bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
+        return bytes;
+    },
+
+    // Convert a byte array to a hex string
+    bytesToHex: function (bytes)
+    {
+        for (var hex = [],
+                 i   = 0; i < bytes.length; i++)
+        {
+            hex.push((bytes[i] >>> 4).toString(16));
+            hex.push((bytes[i] & 0xF).toString(16));
+        }
+        return hex.join("");
+    },
+
+    // Convert a hex string to a byte array
+    hexToBytes: function (hex)
+    {
+        for (var bytes = [],
+                 c     = 0; c < hex.length; c += 2)
+            bytes.push(parseInt(hex.substr(c, 2), 16));
+        return bytes;
+    },
+
+    // Convert a string to a base-64 string
+    stringToBase64: function (str, encoding)
+    {
+        var bytes;
+        if (typeof encoding != 'string')
+        {
+            bytes = UTF8.stringToBytes(str);
+        }
+        else if (encoding.toLowerCase() == 'binary')
+        {
+            bytes = Binary.stringToBytes(str);
+        }
+        else if (encoding.toLowerCase() == 'utf8' || encoding.toLowerCase() == 'utf-8')
+        {
+            bytes = UTF8.stringToBytes(str);
+        }
+        else
+        {
+            bytes = UTF8.stringToBytes(str);
+        }
+
+        return this.bytesToBase64(bytes);
+    },
+
+    // Convert a base-64 string to origin string
+    base64ToString: function (base64, encoding)
+    {
+        var bytes,
+            str;
+
+        bytes = this.base64ToBytes(base64);
+
+        if (typeof encoding != 'string')
+        {
+            str = UTF8.bytesToString(bytes);
+        }
+        else if (encoding.toLowerCase() == 'binary')
+        {
+            str = Binary.bytesToString(bytes);
+        }
+        else if (encoding.toLowerCase() == 'utf8' || encoding.toLowerCase() == 'utf-8')
+        {
+            str = UTF8.bytesToString(bytes);
+        }
+        else
+        {
+            str = UTF8.bytesToString(bytes);
+        }
+
+        return str;
+    },
+
+    // Convert a byte array to a base-64 string
+    bytesToBase64: function (bytes)
+    {
+
+        // Use browser-native function if it exists
+        if (typeof btoa == "function") return btoa(Binary.bytesToString(bytes));
+
+        for (var base64 = [],
+                 i      = 0; i < bytes.length; i += 3)
+        {
+            var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+            for (var j = 0; j < 4; j++)
+            {
+                if (i * 8 + j * 6 <= bytes.length * 8)
+                {
+                    base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
+                }
+                else
+                {
+                    base64.push("=");
+                }
+            }
+        }
+
+        return base64.join("");
+
+    },
+
+    // Convert a base-64 string to a byte array
+    base64ToBytes: function (base64)
+    {
+
+        // Use browser-native function if it exists
+        if (typeof atob == "function") return Binary.stringToBytes(atob(base64));
+
+        // Remove non-base-64 characters
+        base64 = base64.replace(/[^A-Z0-9+\/]/ig, "");
+
+        for (var bytes = [],
+                 i     = 0,
+                 imod4 = 0; i < base64.length; imod4 = ++i % 4)
+        {
+            if (imod4 == 0) continue;
+            bytes.push(((base64map.indexOf(base64.charAt(i - 1)) & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2)) |
+                (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2)));
+        }
+
+        return bytes;
+
+    }
+
+};
 
 // https://soundcloud.com/crystal-castles/pino-placentile-wooden-girl
