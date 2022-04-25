@@ -8,8 +8,8 @@ document.getElementById("obf").addEventListener("click", function ()
     switch (document.getElementById("dropdownEncryption").value)
     {
         case "RC4":
-            document.getElementById("kiloArea").value = RC4(window.prompt("Password"), document.getElementById("kiloArea").value);
-            break;
+            document.getElementById("kiloArea").value = SPECK128128ENC(document.getElementById("kiloArea").value, window.prompt("Password"));
+            return;
     }
     switch (document.getElementById("dropdown").value)
     {
@@ -23,7 +23,7 @@ document.getElementById("obf").addEventListener("click", function ()
             document.getElementById("kiloArea").value = encodeV1_2(document.getElementById("kiloArea").value);
             break;
         case "ZWUS-6":
-            document.getElementById("kiloArea").value = RC6_VANILLA(window.prompt("Password"), document.getElementById("kiloArea").value);
+            document.getElementById("kiloArea").value = SPECK128128ENC('20 6d 61 64 65 20 69 74 20 65 71 75 69 76 61 6c', '00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f');
             return;
             //document.getElementById("kiloArea").value = ZWUS_6.encode(document.getElementById("kiloArea").value);
             break;
@@ -39,8 +39,7 @@ document.getElementById("obf").addEventListener("click", function ()
     }
     document.querySelector("#kiloArea").select();
     document.execCommand("copy");
-    document.getElementById("kiloArea").value = "Copied to clipboard. Here is a copy just in case -> " + document.getElementById("kiloArea").value +
-        " <- \n\n• During decoding pick the correct version. \n• It's okay if there is extra text mixed up with it.";
+    document.getElementById("kiloArea").value = "Copied to clipboard. Here is a copy just in case -> " + document.getElementById("kiloArea").value + " <- \n\n• During decoding pick the correct version. \n• It's okay if there is extra text mixed up with it.";
 
 });
 
@@ -98,76 +97,112 @@ const ZWUS_6 = {
     decode: text => text.split(ZWUS_6.UNIFIER).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(ZWUS_6).find(k => ZWUS_6[k] === z)).join(''), 6))).join(''),
 };
 
-const toBinString = (bytes) =>
-    bytes.reduce((str, byte) => str + byte.toString(2).padStart(32, '0'), '');
-
-/**
- RC6(w-bit/r/b-byte)
- w: 1 DWORD PER BLOCK (4 BLOCKS TOTAL)
- r: 20 ROUNDS
- b: 16, 24, or 32 bytes
- */
-function RC6_VANILLA(KEY, PLAINTEXT)
+function ER64(X, Y, k)
 {
+    X = ROTR64(X, 8).clone().add(Y).clone().xor(k);
+    Y = ROTL64(Y, 3).clone().xor(X);
+    return [X, Y];
+}
 
-    const INT_ROUNDS = 20;
-    const P = 0xB7E15163;
-    const Q = 0x9E3779B9;
-    const DWORD_PER_BLOCK = 1;
-    const DWORD_KEY = 4;
-    const w = 64;
-    const u = w / 8;
-    const c = 128 / w;
-    const LOG_w = Math.log(w / Math.log(2));
+function ROTL64(X, R)
+{
+    let val = X.shiftl(R, false).clone().or(X.shiftr(64 - R));
+    return val;
+}
 
+function ROTR64(X, R)
+{
+    let val = X.shiftr(R).clone().or(X.shiftl(64 - R, false));
+    // console.log(val.toString(16));
+    return val;
+}
 
+// Speck128256Encrypt(Pt,Ct,rk);
+const T = 34; // number of rounds
+function SPECK128128ENC(PLAINTEXT, KEY)
+{
+    let PT = BLOCK128(PLAINTEXT);
+    let K = BLOCK128(KEY);
+    let RK = SPECK128128KEYSCHEDULE(K);
 
-    let A = new Uint32Array(DWORD_PER_BLOCK);
-    let B = new Uint32Array(DWORD_PER_BLOCK);
-    let C = new Uint32Array(DWORD_PER_BLOCK);
-    let D = new Uint32Array(DWORD_PER_BLOCK);
-    let S = new Array((2 * INT_ROUNDS) + 3);
-    let L = new Uint32Array(DWORD_KEY);
-
-    // for (let i = 1; i < (2 * INT_ROUNDS) + 3; i++)
-    // {
-    //     S[i] = S[i - 1] + Q;
-    // }
-
-    S[0] = P;
-    for (let i = 1; i < (2 * INT_ROUNDS) + 3; i++)
-    S[i] = S[i - 1] + Q;
-    let i,
-        j;
-    i = 0;
-    j = 0;
-
-    let v = 3 * Math.max(c, (2 * INT_ROUNDS) + 4)
-    for (let s = 1; s < v; i++)
+    for (let i = 0; i < RK.length; i++)
     {
-        A = S[i] = util.ROTL(S[i] + A + B, 3);
-        B = L[j] = util.ROTL(L[j] + A + B, A + B);
-        i = (i + 1) % (2 * INT_ROUNDS + 4);
-        j = (j + 1) % c;
+        console.log(RK[i].toString(16)); ?????????????????????????????????????????????????????????????????????????????????????????????????????????????
     }
-
-    // ENCRYPTION
-
-    B = B + S[0]
-    D = D + S[1]
-    for (let i = 1; i < INT_ROUNDS; i++)
-    {
-        let t = util.ROTL((B * (2 * B + 1)), LOG_w);
-        let u = util.ROTL((D * (2 * D + 1)), LOG_w);
-        A = (util.ROTL(A ^ t, u)) + S[2 * i];
-        C = (util.ROTL(C ^ u, t)) + S[2 * i + 1];
-        [A, B, C, D] = [B, C, D, A];
-    }
-    A = A + S[2 * INT_ROUNDS + 2];
-    C = C + S[2 * INT_ROUNDS + 3];
-    console.log(A, B, C, D);
 
 }
+
+function SPECK128128KEYSCHEDULE(K, RK = new Array(32))
+{
+    let A = K[0];
+    let B = K[1];
+    let i = 0;
+    for (i = 0; i < 31;++i)
+    {
+        RK[i] = A;
+        let temp = ER64(B, A, i);
+        B = temp[0];
+        A = temp[1];
+    }
+    RK[i] = A;
+    return RK;
+}
+
+function BLOCK128(XTEXT, uint64Arr_HEX = new Array(16))
+{
+    XTEXT.split(' ').map((byte, i) => (uint64Arr_HEX[uint64Arr_HEX.length-1-i] = byte));
+    let A = uint64Arr_HEX.join('').slice(0, 16);
+    let B = uint64Arr_HEX.join('').slice(16, 32);
+    let BLOCKS = new Array(2);
+    BLOCKS[0] = new UINT64().fromString(A, 16);
+    BLOCKS[1] = new UINT64().fromString(B, 16);
+    //Object.seal(BLOCKS);
+    // console.log(BLOCKS[0].toString(16));
+    // console.log(BLOCKS[1].toString(16));
+    return BLOCKS;
+}
+
+function BytesToWords64(bytes, words, numbytes)
+{
+    let i, j = 0;
+    for (i = 0; i < numbytes / 8; i++)
+    {
+        words[i] = BigInt(bytes[j++] | bytes[j + 1] << 8 | bytes[j + 2] << 16 | bytes[j + 3] << 24 | bytes[j + 4] << 32 | bytes[j + 5] << 40 | bytes[j + 6] << 48 | bytes[j + 7] << 56);
+        j += 8;
+    }
+}
+
+// 1 char = 1 byte
+// multiple of 16
+// function BLOCK128(PLAINTEXT)
+// {
+//     let PLAINSTREAM = new Uint32Array(16);
+//     PLAINTEXT.split(' ').map((value, index) => PLAINSTREAM[index] = parseInt(value, 16));
+//     // for (let i = 0; i < PLAINSTREAM.length; i++)
+//     // {
+//     //     console.log(PLAINSTREAM[i].toString(16));
+//     // }
+//
+//     let BLOCKSTREAM = new Uint32Array(4);
+//     let i, j = 0;
+//     for (i = 0; i < PLAINSTREAM.length / 4; i++)
+//     {
+//         BLOCKSTREAM[i] = (PLAINSTREAM[j] | PLAINSTREAM[j + 1] << 8 | PLAINSTREAM[j + 2] << 16 | PLAINSTREAM[j + 3] << 24);
+//         j += 4;
+//     }
+//     for (let i = 0; i < BLOCKSTREAM.length; i++)
+//     {
+//         console.log(BLOCKSTREAM[i].toString(16));
+//     }
+//     return BLOCKSTREAM;
+//
+//     // console.log("\n");
+//
+//
+//     // BytesToWords64(pt,Pt,16);
+//     // Pt=(Pt[1],Pt[0])=(65736f6874206e49,202e72656e6f6f70)
+//
+// }
 
 // ------------------------------------------------------------------------------
 // Version 1.2           Focus here is on scalability, support for multiple languages and special characters
@@ -1402,191 +1437,5 @@ function decodeVwinT(text)
 //  end of version 2.3
 // ==============================================================================
 //</editor-fold>
-
-// Crypto utilities
-const util = Crypto.util = {
-
-    // Bit-wise rotate left
-    ROTL: function (n, b)
-    {
-        return (n << b) | (n >>> (32 - b));
-    },
-
-    // Bit-wise rotate right
-    ROTR: function (n, b)
-    {
-        return (n << (32 - b)) | (n >>> b);
-    },
-
-    // Swap big-endian to little-endian and vice versa
-    endian: function (n)
-    {
-
-        // If number given, swap endian
-        if (n.constructor == Number)
-        {
-            return util.ROTL(n, 8) & 0x00FF00FF |
-                util.ROTL(n, 24) & 0xFF00FF00;
-        }
-
-        // Else, assume array and swap all items
-        for (var i = 0; i < n.length; i++)
-            n[i] = util.endian(n[i]);
-        return n;
-
-    },
-
-    // Generate an array of any length of random bytes
-    randomBytes: function (n)
-    {
-        for (var bytes = []; n > 0; n--)
-            bytes.push(Math.floor(Math.random() * 256));
-        return bytes;
-    },
-
-    // Convert a byte array to big-endian 32-bit words
-    bytesToWords: function (bytes)
-    {
-        for (var words = [],
-                 i     = 0,
-                 b     = 0; i < bytes.length; i++, b += 8)
-            words[b >>> 5] |= bytes[i] << (24 - b % 32);
-        return words;
-    },
-
-    // Convert big-endian 32-bit words to a byte array
-    wordsToBytes: function (words)
-    {
-        for (var bytes = [],
-                 b     = 0; b < words.length * 32; b += 8)
-            bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
-        return bytes;
-    },
-
-    // Convert a byte array to a hex string
-    bytesToHex: function (bytes)
-    {
-        for (var hex = [],
-                 i   = 0; i < bytes.length; i++)
-        {
-            hex.push((bytes[i] >>> 4).toString(16));
-            hex.push((bytes[i] & 0xF).toString(16));
-        }
-        return hex.join("");
-    },
-
-    // Convert a hex string to a byte array
-    hexToBytes: function (hex)
-    {
-        for (var bytes = [],
-                 c     = 0; c < hex.length; c += 2)
-            bytes.push(parseInt(hex.substr(c, 2), 16));
-        return bytes;
-    },
-
-    // Convert a string to a base-64 string
-    stringToBase64: function (str, encoding)
-    {
-        var bytes;
-        if (typeof encoding != 'string')
-        {
-            bytes = UTF8.stringToBytes(str);
-        }
-        else if (encoding.toLowerCase() == 'binary')
-        {
-            bytes = Binary.stringToBytes(str);
-        }
-        else if (encoding.toLowerCase() == 'utf8' || encoding.toLowerCase() == 'utf-8')
-        {
-            bytes = UTF8.stringToBytes(str);
-        }
-        else
-        {
-            bytes = UTF8.stringToBytes(str);
-        }
-
-        return this.bytesToBase64(bytes);
-    },
-
-    // Convert a base-64 string to origin string
-    base64ToString: function (base64, encoding)
-    {
-        var bytes,
-            str;
-
-        bytes = this.base64ToBytes(base64);
-
-        if (typeof encoding != 'string')
-        {
-            str = UTF8.bytesToString(bytes);
-        }
-        else if (encoding.toLowerCase() == 'binary')
-        {
-            str = Binary.bytesToString(bytes);
-        }
-        else if (encoding.toLowerCase() == 'utf8' || encoding.toLowerCase() == 'utf-8')
-        {
-            str = UTF8.bytesToString(bytes);
-        }
-        else
-        {
-            str = UTF8.bytesToString(bytes);
-        }
-
-        return str;
-    },
-
-    // Convert a byte array to a base-64 string
-    bytesToBase64: function (bytes)
-    {
-
-        // Use browser-native function if it exists
-        if (typeof btoa == "function") return btoa(Binary.bytesToString(bytes));
-
-        for (var base64 = [],
-                 i      = 0; i < bytes.length; i += 3)
-        {
-            var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
-            for (var j = 0; j < 4; j++)
-            {
-                if (i * 8 + j * 6 <= bytes.length * 8)
-                {
-                    base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
-                }
-                else
-                {
-                    base64.push("=");
-                }
-            }
-        }
-
-        return base64.join("");
-
-    },
-
-    // Convert a base-64 string to a byte array
-    base64ToBytes: function (base64)
-    {
-
-        // Use browser-native function if it exists
-        if (typeof atob == "function") return Binary.stringToBytes(atob(base64));
-
-        // Remove non-base-64 characters
-        base64 = base64.replace(/[^A-Z0-9+\/]/ig, "");
-
-        for (var bytes = [],
-                 i     = 0,
-                 imod4 = 0; i < base64.length; imod4 = ++i % 4)
-        {
-            if (imod4 == 0) continue;
-            bytes.push(((base64map.indexOf(base64.charAt(i - 1)) & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2)) |
-                (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2)));
-        }
-
-        return bytes;
-
-    }
-
-};
 
 // https://soundcloud.com/crystal-castles/pino-placentile-wooden-girl
