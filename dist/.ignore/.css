@@ -28,7 +28,7 @@ footer, header, hgroup, menu, nav, section {
 
 @font-face {
   font-family: "LocalCandara";
-  src: url("../resources/fonts/candara-webfont.woff") format("woff");
+  src: url(".woff") format("woff");
 }
 
 body {
@@ -74,7 +74,7 @@ input{
   font-size: 11.5px;
 }
 
-#obf {
+#encode {
   display: inline-block;
   margin-bottom: 0px;
   margin-left: 1.5%;

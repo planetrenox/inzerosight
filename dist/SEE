@@ -1,0 +1,21 @@
+────.
+    │
+    ├── .idea ──────────────────────────────    # .idea build script outputs to dist
+    ├── src
+    │   ├── .js ────────────────────────────    # main
+    │   ├── .rs ────────────────────────────    # encryption wasm module
+    │   ├── .html ──────────────────────────    # popup
+    │   └── .ignore
+    └── dist
+        ├── manifest.json
+        └── *
+
+
+
+
+about:debugging#/runtime/this-firefox   # test manifest.json here
+
+> its quite simple
+> open your eyes??
+
+> 2022-06-21 still blind

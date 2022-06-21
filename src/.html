@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href=".css/.css"/>
+
+    </head>
+
+    <body>
+
+        <div id="overbar">
+            <p>
+                inØsight — Zero Width Obfuscation 1.5<a id="homepage" href="https://github.com/PlanetRenox/inzerosight">Source</a>
+            </p>
+        </div>
+
+        <textarea id="kiloArea" placeholder="input text here..."></textarea>
+
+        <input id="encode" type="button" name="button" value="encode to clipboard"/>
+
+        <input id="decode" type="button" name="button" value="decode from text"/>
+
+        <select id="dropdown">
+            <optgroup label="Standard">
+            <option>ZWUS-6</option>
+            </optgroup>
+            <optgroup label="Depreciated">
+            <option>version 1.2</option>
+            <option>version 1.1</option>
+            <option>version 1.0</option>
+            </optgroup>
+            <optgroup label="Compatibility">
+            <option>limited proT</option>
+            <option>limited twiT</option>
+            <option>limited winT</option>
+            <option>no encoding</option>
+            </optgroup>
+        </select>
+
+        <select id="dropdownEncryption">
+            <option>no encryption</option>
+            <option>speck-128</option>
+        </select>
+
+        <p id="notice">
+            Different versions exist because some sites restrict Ø width characters.
+            <a id="versions" href="https://github.com/PlanetRenox/inzerosight/blob/main/docs/CompatibilityList.md">[compatibility list]</a>
+        </p>
+
+        <script src=".js"></script>
+
+    </body>
+
+</html>

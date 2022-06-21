@@ -1,2 +1,7 @@
-.idea
-.svn
+**/*.svn
+**/*.git
+
+**/*.lock
+**/target
+
+**/workspace.xml

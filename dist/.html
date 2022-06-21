@@ -4,7 +4,7 @@
 
     <head>
         <meta charset="utf-8">
-        <link rel="stylesheet" href="style.css"/>
+        <link rel="stylesheet" href=".css/.css"/>
 
     </head>
 
@@ -18,7 +18,7 @@
 
         <textarea id="kiloArea" placeholder="input text here..."></textarea>
 
-        <input id="obf" type="button" name="button" value="encode to clipboard"/>
+        <input id="encode" type="button" name="button" value="encode to clipboard"/>
 
         <input id="decode" type="button" name="button" value="decode from text"/>
 
@@ -41,9 +41,7 @@
 
         <select id="dropdownEncryption">
             <option>no encryption</option>
-            <optgroup label="Rivest Cipher">
-            <option>RC4</option>
-            </optgroup>
+            <option>speck-128</option>
         </select>
 
         <p id="notice">
@@ -51,8 +49,7 @@
             <a id="versions" href="https://github.com/PlanetRenox/inzerosight/blob/main/docs/CompatibilityList.md">[compatibility list]</a>
         </p>
 
-        <script src="script.js"></script>
-        <script src="uint64.js"></script>
+        <script src=".js"></script>
 
     </body>
 

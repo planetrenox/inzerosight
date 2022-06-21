@@ -1,208 +1,81 @@
-document.getElementById("obf").addEventListener("click", function ()
+document.getElementById("encode").addEventListener("click", event_encodeORdecode);
+document.getElementById("decode").addEventListener("click", event_encodeORdecode);
+
+function event_encodeORdecode(event)
 {
+    let isEncoding = event.target.id === "encode";
+    let textarea_kilo = document.getElementById("kiloArea");
     if (document.getElementById("kiloArea").value === "")
     {
-        document.getElementById("kiloArea").value = "The text box is empty.";
-        return;
-    }
-    switch (document.getElementById("dropdownEncryption").value)
-    {
-        case "RC4":
-            document.getElementById("kiloArea").value = SPECK128128ENC(document.getElementById("kiloArea").value, window.prompt("Password"));
-            return;
-    }
-    switch (document.getElementById("dropdown").value)
-    {
-        case "version 1.0":
-            document.getElementById("kiloArea").value = encodeV1_0(document.getElementById("kiloArea").value);
-            break;
-        case "version 1.1":
-            document.getElementById("kiloArea").value = encodeV1_1(document.getElementById("kiloArea").value);
-            break;
-        case "version 1.2":
-            document.getElementById("kiloArea").value = encodeV1_2(document.getElementById("kiloArea").value);
-            break;
-        case "ZWUS-6":
-            document.getElementById("kiloArea").value = SPECK128128ENC('20 6d 61 64 65 20 69 74 20 65 71 75 69 76 61 6c', '00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f');
-            return;
-            //document.getElementById("kiloArea").value = ZWUS_6.encode(document.getElementById("kiloArea").value);
-            break;
-        case "limited twiT":
-            document.getElementById("kiloArea").value = encodeVtwiT(document.getElementById("kiloArea").value);
-            break;
-        case "limited proT":
-            document.getElementById("kiloArea").value = encodeVproT(document.getElementById("kiloArea").value);
-            break;
-        case "limited winT":
-            document.getElementById("kiloArea").value = encodeVwinT(document.getElementById("kiloArea").value);
-            break;
-    }
-    document.querySelector("#kiloArea").select();
-    document.execCommand("copy");
-    document.getElementById("kiloArea").value = "Copied to clipboard. Here is a copy just in case -> " + document.getElementById("kiloArea").value + " <- \n\n• During decoding pick the correct version. \n• It's okay if there is extra text mixed up with it.";
-
-});
-
-document.getElementById("decode").addEventListener("click", function ()
-{
-    if (document.getElementById("kiloArea").value === "")
-    {
-        document.getElementById("kiloArea").value = "The text box is empty.";
+        textarea_kilo.value = "The text box is empty.";
         return;
     }
     switch (document.getElementById("dropdown").value)
     {
-        case "version 1.0":
-            document.getElementById("kiloArea").value = decodeV1_0(document.getElementById("kiloArea").value);
-            break;
-        case "version 1.1":
-            document.getElementById("kiloArea").value = decodeV1_1(document.getElementById("kiloArea").value);
+        case "ZWUS-6":
+            isEncoding ? textarea_kilo.value = ZWUS_6.encode(textarea_kilo.value) : textarea_kilo.value = ZWUS_6.decode(textarea_kilo.value);
             break;
         case "version 1.2":
-            document.getElementById("kiloArea").value = decodeV1_2(document.getElementById("kiloArea").value);
-            break;
-        case "ZWUS-6":
-            document.getElementById("kiloArea").value = ZWUS_6.decode(document.getElementById("kiloArea").value);
+            isEncoding ? textarea_kilo.value = encodeV1_2(textarea_kilo.value) : textarea_kilo.value = decodeV1_2(textarea_kilo.value);
             break;
         case "limited twiT":
-            document.getElementById("kiloArea").value = decodeVtwiT(document.getElementById("kiloArea").value);
-            break;
-        case "limited winT":
-            document.getElementById("kiloArea").value = decodeVwinT(document.getElementById("kiloArea").value);
+            isEncoding ? textarea_kilo.value = encodeVtwiT(textarea_kilo.value) : textarea_kilo.value = decodeVtwiT(textarea_kilo.value);
             break;
         case "limited proT":
-            document.getElementById("kiloArea").value = decodeVproT(document.getElementById("kiloArea").value);
+            isEncoding ? textarea_kilo.value = encodeVproT(textarea_kilo.value) : textarea_kilo.value = decodeVwinT(textarea_kilo.value);
+            break;
+        case "limited winT":
+            isEncoding ? textarea_kilo.value = encodeVwinT(textarea_kilo.value) : textarea_kilo.value = decodeVproT(textarea_kilo.value);
             break;
     }
     switch (document.getElementById("dropdownEncryption").value)
     {
-        case "RC4":
-            document.getElementById("kiloArea").value = RC4(window.prompt("Password"), document.getElementById("kiloArea").value);
+        case "speck-128":
+            sendMemoryFromJavaScript();
+
+            // textarea_kilo.value = SPECK128128ENC(textarea_kilo.value, window.prompt("Password"));
             break;
     }
+    if (isEncoding)
+    {
+        document.querySelector("#kiloArea").select();
+        document.execCommand("copy");
+        textarea_kilo.value = "Copied to clipboard. Here is a copy just in case -> " + textarea_kilo.value + " <- \n\n• During decoding pick the correct version. \n• It's okay if there is extra text mixed up with it.";
+    }
 
-});
+}
+
+async function sendMemoryFromJavaScript()
+{
+    const enscry = await WebAssembly.instantiateStreaming(fetch(".ignore/.wasm"));
+
+    const s = new Set([1, 2, 3]);
+    let jsArr = Uint8Array.from(s);
+    const len = jsArr.length;
+    let wasmArrPtr = enscry.instance.exports.malloc(length);
+    let wasmArr = new Uint8Array(enscry.instance.exports.memory.buffer, wasmArrPtr, len);
+    wasmArr.set(jsArr);
+    const sum = enscry.instance.exports.accumulate(wasmArrPtr, len);
+    console.log(sum);
+}
 
 /** Zero Width Unicode Standard — Senary */
 const ZWUS_6 = {
-    0      : "\u{180E}",
-    1      : "\u{200B}",
-    2      : "\u{200C}",
-    3      : "\u{200D}",
-    4      : "\u{200E}",
-    5      : "\u{2060}",
-    UNIFIER: "\u{FEFF}",
+    DICT: {
+        0: "\u{180E}",
+        1: "\u{200B}",
+        2: "\u{200C}",
+        3: "\u{200D}",
+        4: "\u{200E}",
+        5: "\u{2060}",
+        UNIFIER: "\u{FEFF}"
+    },
 
-    encode: text => Array.from(text).map(x => x.codePointAt(0).toString(6).split('').map(x => ZWUS_6[x]).join('')).join(ZWUS_6.UNIFIER),
-    decode: text => text.split(ZWUS_6.UNIFIER).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(ZWUS_6).find(k => ZWUS_6[k] === z)).join(''), 6))).join(''),
+    CRY : {PLAIN, SPECK128},
+
+    encode: text => Array.from(text).map(x => x.codePointAt(0).toString(6).split('').map(x => ZWUS_6.DICT[x]).join('')).join(ZWUS_6.DICT.UNIFIER),
+    decode: text => text.split(ZWUS_6.DICT.UNIFIER).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(ZWUS_6.DICT).find(k => ZWUS_6.DICT[k] === z)).join(''), 6))).join('')
 };
-
-function ER64(X, Y, k)
-{
-    X = ROTR64(X, 8).clone().add(Y).clone().xor(k);
-    Y = ROTL64(Y, 3).clone().xor(X);
-    return [X, Y];
-}
-
-function ROTL64(X, R)
-{
-    let val = X.shiftl(R, false).clone().or(X.shiftr(64 - R));
-    return val;
-}
-
-function ROTR64(X, R)
-{
-    let val = X.shiftr(R).clone().or(X.shiftl(64 - R, false));
-    // console.log(val.toString(16));
-    return val;
-}
-
-// Speck128256Encrypt(Pt,Ct,rk);
-const T = 34; // number of rounds
-function SPECK128128ENC(PLAINTEXT, KEY)
-{
-    let PT = BLOCK128(PLAINTEXT);
-    let K = BLOCK128(KEY);
-    let RK = SPECK128128KEYSCHEDULE(K);
-
-    for (let i = 0; i < RK.length; i++)
-    {
-        console.log(RK[i].toString(16)); ?????????????????????????????????????????????????????????????????????????????????????????????????????????????
-    }
-
-}
-
-function SPECK128128KEYSCHEDULE(K, RK = new Array(32))
-{
-    let A = K[0];
-    let B = K[1];
-    let i = 0;
-    for (i = 0; i < 31;++i)
-    {
-        RK[i] = A;
-        let temp = ER64(B, A, i);
-        B = temp[0];
-        A = temp[1];
-    }
-    RK[i] = A;
-    return RK;
-}
-
-function BLOCK128(XTEXT, uint64Arr_HEX = new Array(16))
-{
-    XTEXT.split(' ').map((byte, i) => (uint64Arr_HEX[uint64Arr_HEX.length-1-i] = byte));
-    let A = uint64Arr_HEX.join('').slice(0, 16);
-    let B = uint64Arr_HEX.join('').slice(16, 32);
-    let BLOCKS = new Array(2);
-    BLOCKS[0] = new UINT64().fromString(A, 16);
-    BLOCKS[1] = new UINT64().fromString(B, 16);
-    //Object.seal(BLOCKS);
-    // console.log(BLOCKS[0].toString(16));
-    // console.log(BLOCKS[1].toString(16));
-    return BLOCKS;
-}
-
-function BytesToWords64(bytes, words, numbytes)
-{
-    let i, j = 0;
-    for (i = 0; i < numbytes / 8; i++)
-    {
-        words[i] = BigInt(bytes[j++] | bytes[j + 1] << 8 | bytes[j + 2] << 16 | bytes[j + 3] << 24 | bytes[j + 4] << 32 | bytes[j + 5] << 40 | bytes[j + 6] << 48 | bytes[j + 7] << 56);
-        j += 8;
-    }
-}
-
-// 1 char = 1 byte
-// multiple of 16
-// function BLOCK128(PLAINTEXT)
-// {
-//     let PLAINSTREAM = new Uint32Array(16);
-//     PLAINTEXT.split(' ').map((value, index) => PLAINSTREAM[index] = parseInt(value, 16));
-//     // for (let i = 0; i < PLAINSTREAM.length; i++)
-//     // {
-//     //     console.log(PLAINSTREAM[i].toString(16));
-//     // }
-//
-//     let BLOCKSTREAM = new Uint32Array(4);
-//     let i, j = 0;
-//     for (i = 0; i < PLAINSTREAM.length / 4; i++)
-//     {
-//         BLOCKSTREAM[i] = (PLAINSTREAM[j] | PLAINSTREAM[j + 1] << 8 | PLAINSTREAM[j + 2] << 16 | PLAINSTREAM[j + 3] << 24);
-//         j += 4;
-//     }
-//     for (let i = 0; i < BLOCKSTREAM.length; i++)
-//     {
-//         console.log(BLOCKSTREAM[i].toString(16));
-//     }
-//     return BLOCKSTREAM;
-//
-//     // console.log("\n");
-//
-//
-//     // BytesToWords64(pt,Pt,16);
-//     // Pt=(Pt[1],Pt[0])=(65736f6874206e49,202e72656e6f6f70)
-//
-// }
 
 // ------------------------------------------------------------------------------
 // Version 1.2           Focus here is on scalability, support for multiple languages and special characters
@@ -354,8 +227,7 @@ const dictionaryV1_2sc = {
     í   : "\u{FEFF}\u{FEFF}",
     ò   : "\u{FEFF}\u{200E}",
     ó   : "\u{200E}\u{200D}",
-    ù   : "\u{200E}\u{2060}",
-    "$" : "\u{200E}\u{00AD}",
+    ù   : "\u{200E}\u{2060}", //"$" : "\u{200E}\u{00AD}",
     "œ" : "\u{200E}\u{200E}",
     "æ" : "\u{200E}\u{200B}"
     // "switch dictionary": "\u{200E}\u{FEFF}" // Stays the same across all dictionaries
@@ -764,351 +636,6 @@ function decodeV1_2(text)
     return kilo;
 }
 
-//</editor-fold>
-
-// ------------------------------------------------------------------------------
-// Version 1.1           Not concerned with compatibility, can handle PGP, improved size efficiency
-// Building blocks:      200B 200C 200D 180E 2060 00AD FEFF 200E
-// Supported characters: (space) Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz
-//                       0 1 2 3 4 5 6 7 8 9
-//                       (new line) ! ? # * ( ) - _ = + : " , . /
-//<editor-fold defaultstate="collapsed" desc="Version 1.1">
-var dictionaryV1_1 = {
-    0   : "\u{200C}\u{FEFF}",
-    1   : "\u{200C}\u{200E}",
-    2   : "\u{200D}\u{FEFF}",
-    3   : "\u{200D}\u{200E}",
-    4   : "\u{2060}\u{FEFF}",
-    5   : "\u{2060}\u{200E}",
-    6   : "\u{00AD}\u{FEFF}",
-    7   : "\u{00AD}\u{200E}",
-    8   : "\u{FEFF}\u{200B}",
-    9   : "\u{FEFF}\u{200C}",
-    a   : "\u{200B}\u{200D}",
-    b   : "\u{2060}\u{00AD}",
-    c   : "\u{200D}\u{200D}",
-    d   : "\u{200C}\u{00AD}",
-    e   : "\u{200B}\u{200B}",
-    f   : "\u{200D}\u{00AD}",
-    g   : "\u{2060}\u{200D}",
-    h   : "\u{200C}\u{200D}",
-    i   : "\u{200B}\u{2060}",
-    j   : "\u{00AD}\u{2060}",
-    k   : "\u{00AD}\u{200C}",
-    l   : "\u{200D}\u{200B}",
-    m   : "\u{200D}\u{2060}",
-    n   : "\u{200B}\u{00AD}",
-    o   : "\u{200C}\u{200B}",
-    p   : "\u{2060}\u{2060}",
-    q   : "\u{00AD}\u{200D}",
-    r   : "\u{200C}\u{2060}",
-    s   : "\u{200C}\u{200C}",
-    t   : "\u{200B}\u{200C}",
-    u   : "\u{200D}\u{200C}",
-    v   : "\u{00AD}\u{200B}",
-    w   : "\u{2060}\u{200B}",
-    x   : "\u{200B}\u{FEFF}",
-    y   : "\u{2060}\u{200C}",
-    z   : "\u{200B}\u{200E}",
-    _   : "\u{200E}\u{200C}",
-    " " : "\u{180E}",
-    "," : "\u{FEFF}\u{2060}",
-    "\n": "\u{FEFF}\u{200D}",
-    "." : "\u{FEFF}\u{00AD}",
-    "-" : "\u{FEFF}\u{FEFF}",
-    '"' : "\u{FEFF}\u{200E}",
-    "+" : "\u{200E}\u{200D}",
-    "=" : "\u{200E}\u{2060}",
-    "/" : "\u{200E}\u{00AD}",
-    "?" : "\u{200E}\u{FEFF}",
-    "!" : "\u{200E}\u{200E}",
-    "(" : "\u{200E}\u{200B}"
-};
-
-function encodeV1_1(sec)
-{
-    var kilo = "";
-    for (var i = 0; i < sec.length; i++)
-    {
-        var itWasUpperCase = false;
-        if (sec.charAt(i) == sec.charAt(i).toLowerCase())
-        {
-            itWasUpperCase = false;
-        }
-        else
-        {
-            itWasUpperCase = true;
-        }
-        if (dictionaryV1_1[sec.charAt(i).toLowerCase()] !== undefined)
-        {
-            if (itWasUpperCase)
-            {
-                kilo += "\u{00AD}\u{00AD}";
-            }
-            kilo += dictionaryV1_1[sec.charAt(i).toLowerCase() // Spacial characters
-                ];
-        }
-        else if (sec.charAt(i) === "#")
-        {
-            kilo += "\u{200E}\u{200B}\u{200E}\u{200D}";
-        }
-        else if (sec.charAt(i) === ")")
-        {
-            kilo += "\u{200E}\u{200B}\u{FEFF}\u{200D}";
-        }
-        else if (sec.charAt(i) === ":")
-        {
-            kilo += "\u{200E}\u{200B}\u{FEFF}\u{00AD}";
-        }
-        else if (sec.charAt(i) === "*")
-        {
-            kilo += "\u{200E}\u{200B}\u{200E}\u{00AD}";
-        }
-    }
-    return kilo;
-}
-
-function decodeV1_1(text)
-{
-    var theKilo = "";
-    var stripped = text.replace(/[^\u200B\u200C\u200D\u2060\u00AD\uFEFF\u200E\u180E]/g, "");
-    var kilo = "";
-    var reverseDictionary = Object.values(dictionaryV1_1);
-    var CorresKeys = Object.keys(dictionaryV1_1);
-    for (var i = 0; i < stripped.length; i += 2)
-    {
-        var wasUpperCase = false;
-        while (stripped.charAt(i) === "\u{180E}")
-        {
-            kilo += " ";
-            i++;
-        }
-        if (stripped.substring(i, i + 2) === "\u{00AD}\u{00AD}")
-        {
-            wasUpperCase = true;
-            i += 2;
-        }
-        for (var k = 0; k < 48; k++)
-        {
-            if (stripped.substring(i, i + 2) === reverseDictionary[k])
-            {
-                theKilo = CorresKeys[k];
-                if (wasUpperCase)
-                {
-                    theKilo = theKilo.toUpperCase();
-                }
-                kilo += theKilo;
-                break;
-            }
-            else if (stripped.substring(i, i + 2) === "\u{200E}\u{200B}")
-            {
-                if (stripped.substring(i + 2, i + 4) === "\u{200E}\u{200D}")
-                {
-                    kilo += "#";
-                    i += 2;
-                    break;
-                }
-                else if (stripped.substring(i + 2, i + 4) === "\u{FEFF}\u{200D}")
-                {
-                    kilo += ")";
-                    i += 2;
-                    break;
-                }
-                else if (stripped.substring(i + 2, i + 4) === "\u{200E}\u{00AD}")
-                {
-                    kilo += "*";
-                    i += 2;
-                    break;
-                }
-                else if (stripped.substring(i + 2, i + 4) === "\u{FEFF}\u{00AD}")
-                {
-                    kilo += ":";
-                    i += 2;
-                    break;
-                }
-                else
-                {
-                    kilo += "(";
-                }
-                break;
-            }
-        }
-    }
-    return kilo;
-}
-
-// ==============================================================================
-//  end of version 1.1
-// ==============================================================================
-//</editor-fold>
-
-// ------------------------------------------------------------------------------
-// Version 1.0           Not concerned with compatibility, can handle PGP, efficiency not so great
-// Building blocks:      200B 200C 200D 180E 2060 00AD FEFF 200E
-// Supported characters: (space) Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz
-//                       0 1 2 3 4 5 6 7 8 9
-//                       (new line) ! ? # * ( ) - _ = + : " , . /
-//<editor-fold defaultstate="collapsed" desc="Version 1.0">
-var dictionary = {
-    0   : "\u{200C}\u{FEFF}",
-    1   : "\u{200C}\u{200E}",
-    2   : "\u{200D}\u{FEFF}",
-    3   : "\u{200D}\u{200E}",
-    4   : "\u{2060}\u{FEFF}",
-    5   : "\u{2060}\u{200E}",
-    6   : "\u{00AD}\u{FEFF}",
-    7   : "\u{00AD}\u{200E}",
-    8   : "\u{FEFF}\u{200B}",
-    9   : "\u{FEFF}\u{200C}",
-    a   : "\u{200B}\u{200D}",
-    b   : "\u{2060}\u{00AD}",
-    c   : "\u{200D}\u{200D}",
-    d   : "\u{200C}\u{00AD}",
-    e   : "\u{200B}\u{200B}",
-    f   : "\u{200D}\u{00AD}",
-    g   : "\u{2060}\u{200D}",
-    h   : "\u{200C}\u{200D}",
-    i   : "\u{200B}\u{2060}",
-    j   : "\u{00AD}\u{2060}",
-    k   : "\u{00AD}\u{200C}",
-    l   : "\u{200D}\u{200B}",
-    m   : "\u{200D}\u{2060}",
-    n   : "\u{200B}\u{00AD}",
-    o   : "\u{200C}\u{200B}",
-    p   : "\u{2060}\u{2060}",
-    q   : "\u{00AD}\u{200D}",
-    r   : "\u{200C}\u{2060}",
-    s   : "\u{200C}\u{200C}",
-    t   : "\u{200B}\u{200C}",
-    u   : "\u{200D}\u{200C}",
-    v   : "\u{00AD}\u{200B}",
-    w   : "\u{2060}\u{200B}",
-    x   : "\u{200B}\u{FEFF}",
-    y   : "\u{2060}\u{200C}",
-    z   : "\u{200B}\u{200E}",
-    _   : "\u{200E}\u{200C}",
-    " " : "\u{00AD}\u{00AD}",
-    "\n": "\u{FEFF}\u{200D}",
-    "," : "\u{FEFF}\u{2060}",
-    "." : "\u{FEFF}\u{00AD}",
-    "-" : "\u{FEFF}\u{FEFF}",
-    '"' : "\u{FEFF}\u{200E}",
-    "(" : "\u{200E}\u{200B}",
-    "+" : "\u{200E}\u{200D}",
-    "=" : "\u{200E}\u{2060}",
-    "/" : "\u{200E}\u{00AD}",
-    "?" : "\u{200E}\u{FEFF}",
-    "!" : "\u{200E}\u{200E}"
-};
-
-function encodeV1_0(sec)
-{
-    var kilo = "";
-    for (var i = 0; i < sec.length; i++)
-    {
-        var itWasUpperCase = false;
-        if (sec.charAt(i) == sec.charAt(i).toLowerCase())
-        {
-            itWasUpperCase = false;
-        }
-        else
-        {
-            itWasUpperCase = true;
-        }
-        if (dictionary[sec.charAt(i).toLowerCase()] !== undefined)
-        {
-            if (itWasUpperCase)
-            {
-                kilo += "\u{180E}";
-            }
-            kilo += dictionary[sec.charAt(i).toLowerCase() // Spacial characters
-                ];
-        }
-        else if (sec.charAt(i) === "#")
-        {
-            kilo += "\u{200E}\u{200B}\u{200E}\u{200D}";
-        }
-        else if (sec.charAt(i) === ")")
-        {
-            kilo += "\u{200E}\u{200B}\u{FEFF}\u{200D}";
-        }
-        else if (sec.charAt(i) === ":")
-        {
-            kilo += "\u{200E}\u{200B}\u{FEFF}\u{00AD}";
-        }
-        else if (sec.charAt(i) === "*")
-        {
-            kilo += "\u{200E}\u{200B}\u{200E}\u{00AD}";
-        }
-    }
-    return kilo;
-}
-
-function decodeV1_0(text)
-{
-    var theKilo = "";
-    var stripped = text.replace(/[^\u200B\u200C\u200D\u2060\u00AD\uFEFF\u200E\u180E]/g, "");
-    var kilo = "";
-    var reverseDictionary = Object.values(dictionary);
-    var CorresKeys = Object.keys(dictionary);
-    for (var i = 0; i < stripped.length; i += 2)
-    {
-        var wasUpperCase = false;
-        if (stripped.charAt(i) === "\u{180E}")
-        {
-            wasUpperCase = true;
-            i++;
-        }
-        for (var k = 0; k < 50; k++)
-        {
-            if (stripped.substring(i, i + 2) === reverseDictionary[k])
-            {
-                theKilo = CorresKeys[k];
-                if (wasUpperCase)
-                {
-                    theKilo = theKilo.toUpperCase();
-                }
-                kilo += theKilo;
-                break;
-            }
-            else if (stripped.substring(i, i + 2) === "\u{200E}\u{200B}")
-            {
-                if (stripped.substring(i + 2, i + 4) === "\u{200E}\u{200D}")
-                {
-                    kilo += "#";
-                    i += 2;
-                    break;
-                }
-                else if (stripped.substring(i + 2, i + 4) === "\u{FEFF}\u{200D}")
-                {
-                    kilo += ")";
-                    i += 2;
-                    break;
-                }
-                else if (stripped.substring(i + 2, i + 4) === "\u{200E}\u{00AD}")
-                {
-                    kilo += "*";
-                    i += 2;
-                    break;
-                }
-                else if (stripped.substring(i + 2, i + 4) === "\u{FEFF}\u{00AD}")
-                {
-                    kilo += ":";
-                    i += 2;
-                    break;
-                }
-                else
-                {
-                    kilo += "(";
-                }
-                break;
-            }
-        }
-    }
-    return kilo;
-}
-
-// ==============================================================================
 //</editor-fold>
 
 // ------------------------------------------------------------------------------
