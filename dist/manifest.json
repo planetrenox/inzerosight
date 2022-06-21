@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+  "name": "inØsight",
+  "version": "2",
+  "author": "planetrenox@pm.me",
+  "homepage_url": "https://github.com/PlanetRenox/inzerosight",
+  "description": "Communicate undetected in plain sight using zero width obfuscation.",
+  "icons": {
+    "48": ".css/.png"
+  },
+  "browser_action": {
+    "browser_style": false,
+    "default_icon": ".css/.png",
+    "default_title": "inØsight",
+    "default_popup": ".html"
+  },
+  "web_accessible_resources": [
+    ".css/.woff"
+  ]
+}

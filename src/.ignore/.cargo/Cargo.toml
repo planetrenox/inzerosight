@@ -1,0 +1,16 @@
+[package]
+name = "enscry"
+version = "0.9.0"
+edition = "2021"
+
+[lib]
+crate_type = ["cdylib"]
+path = "../../.rs"
+
+[dependencies]
+speck = "1.1.0"
+byteorder = "1.4.3"
+
+
+
+
