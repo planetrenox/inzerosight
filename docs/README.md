@@ -17,17 +17,21 @@ This extension defines a standard to represent all unicode so they can be encode
 
 ```
 /** Zero Width Unicode Standard — Senary */
-const ZWUS_6 = {
-    0      : "\u{200B}",
-    1      : "\u{200C}",
-    2      : "\u{200D}",
-    3      : "\u{2060}",
-    4      : "\u{FEFF}",
-    5      : "\u{200E}",
-    UNIFIER: "\u{180E}",
+const DES =
+    {
+        CODE:
+            {
+                0: "\u{180E}",
+                1: "\u{200B}",
+                2: "\u{200C}",
+                3: "\u{200D}",
+                4: "\u{200E}",
+                5: "\u{2060}",
+                unifier: "\u{FEFF}"
+            },
 
-    encode: text => text.split('').map(x => x.codePointAt(0).toString(6).split('').map(x => ZWUS_6[x]).join('') + ZWUS_6.UNIFIER).join('').slice(0, -1),
-    decode: text => text.split(ZWUS_6.UNIFIER).map(s => String.fromCharCode(parseInt(s.split('').map(c => Object.keys(ZWUS_6).find(k => ZWUS_6[k] === c)).join(''), 6).toString(10))).join('')
-};
+        EN: (text: string) => Array.from(text).map(x => x.codePointAt(0).toString(6).split('').map(x => DES.CODE[x]).join('')).join(DES.CODE.unifier),
+        DE: (text: string) => text.split(DES.CODE.unifier).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(DES.CODE).find(k => DES.CODE[k] === z)).join(''), 6))).join('')
+    };
 ```
-*Currently considering adding encryption with RC6. Pull requests are welcome.*
+*Pull requests are welcome.*

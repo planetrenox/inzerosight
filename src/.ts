@@ -51,11 +51,7 @@ const CRY =
 
 // async function sendMemoryFromJavaScript()
 // {
-//     const enscry = await WebAssembly.instantiateStreaming(fetch("build/.wasm")).then(obj => console.log(obj.instance.exports.length));
-//     enscry.instance.exports
-//
-//     const s = new Set([1, 2, 3]);
-//     let jsArr = Uint8Array.from(s);
+//     let jsArr = Uint8Array.from("d");
 //     const len = jsArr.length;
 //     let wasmArrPtr = enscry.instance.exports.malloc(length);
 //     let wasmArr = new Uint8Array(enscry.instance.exports.memory.buffer, wasmArrPtr, len);
