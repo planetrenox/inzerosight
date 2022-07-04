@@ -5,11 +5,13 @@ edition = "2021"
 
 [lib]
 crate_type = ["cdylib"]
-path = "../../.rs"
+path = "src/.rs"
+test = false
 
 [dependencies]
-speck = "1.1.0"
 byteorder = "1.4.3"
+proc-macro2 = "1.0"
+
 
 
 

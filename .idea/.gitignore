@@ -1,7 +1,0 @@
-**/*.svn
-**/*.git
-
-**/*.lock
-**/target
-
-**/workspace.xml
