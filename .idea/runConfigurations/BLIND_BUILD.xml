@@ -1,7 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="BLIND BUILD" type="CompoundRunConfigurationType">
-    <toRun name="cargo build" type="CargoCommandRunConfiguration" />
-    <toRun name="cp build" type="ShConfigurationType" />
-    <method v="2" />
-  </configuration>
-</component>
