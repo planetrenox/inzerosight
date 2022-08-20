@@ -1,7 +1,7 @@
 //! entry script when extension icon is clicked
 let SCRY = WebAssembly.instantiateStreaming(fetch(".wasm"), {}).then(obj => obj.instance.exports);
-let textarea = <HTMLTextAreaElement>document.getElementById("textarea");
-let cipher = <HTMLSelectElement>document.getElementById("cipher");
+let textarea = document.getElementById("textarea");
+let cipher = document.getElementById("cipher");
 document.getElementById("en").addEventListener("click", ACT);
 document.getElementById("de").addEventListener("click", ACT);
 
@@ -33,8 +33,8 @@ const DES =
                 unifier: "\u{FEFF}"
             },
 
-        EN: (text: string) => Array.from(text).map(x => x.codePointAt(0).toString(6).split('').map(x => DES.CODE[x]).join('')).join(DES.CODE.unifier),
-        DE: (text: string) => text.split(DES.CODE.unifier).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(DES.CODE).find(k => DES.CODE[k] === z)).join(''), 6))).join('')
+        EN: (text) => Array.from(text).map(x => x.codePointAt(0).toString(6).split('').map(x => DES.CODE[x]).join('')).join(DES.CODE.unifier),
+        DE: (text) => text.split(DES.CODE.unifier).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(DES.CODE).find(k => DES.CODE[k] === z)).join(''), 6))).join('')
     };
 
 const CRY =
@@ -44,8 +44,8 @@ const CRY =
                 SPECK_128: 'SPECK_128'
             },
 
-        YES: (text, cipher: typeof CRY.CIPHER, key, code: boolean) => SCRY.then(xp => xp['en' + cipher] as CallableFunction).then(fn => console.log(fn(1, 2))),
-        NO: (text, cipher: typeof CRY.CIPHER, key, code: boolean) => SCRY.then(xp => xp['de' + cipher] as CallableFunction).then(fn => console.log(fn(1, 2)))
+        YES: (text, cipher, key, mode) => SCRY.then(xp => xp['en' + cipher]).then(fn => console.log(fn(1, 2))),
+        NO: (text, cipher, key, mode) => SCRY.then(xp => xp['de' + cipher]).then(fn => console.log(fn(1, 2)))
     };
 
 
