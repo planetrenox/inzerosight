@@ -8,11 +8,12 @@ use std::slice::from_raw_parts_mut;
 #[no_mangle]
 pub fn speck_128_encrypt(data: *mut u8, len: usize) -> i32
 {
-    let k: u128 = 0x0f0e0d0c0b0a09080706050403020100;
     let m_slice = unsafe { from_raw_parts_mut(data as *mut u8, len) };
     m_slice.reverse();
-    let m: u128 = m_slice.iter().fold(0, |acc, &x| (acc << 8) | x as u128);
-    let res = speck::encrypt_block(m, k);
+    let res = speck::encrypt_block(
+        m_slice.iter().fold(0, |acc, &x| (acc << 8) | x as u128),
+        0x0f0e0d0c0b0a09080706050403020100,
+    );
     if res == 0xa65d9851797832657860fedf5c570d18
     {
         1
