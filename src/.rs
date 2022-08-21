@@ -10,18 +10,13 @@ pub fn speck_128_encrypt(data: *mut u8, len: usize) -> i32
 {
     let m_slice = unsafe { from_raw_parts_mut(data as *mut u8, len) };
     m_slice.reverse();
-    let res = speck::encrypt_block(
-        m_slice.iter().fold(0, |acc, &x| (acc << 8) | x as u128),
-        0x0f0e0d0c0b0a09080706050403020100,
-    );
-    if res == 0xa65d9851797832657860fedf5c570d18
+    let m: u128 = m_slice.iter().fold(0, |acc, &x| (acc << 8) | x as u128);
+    let res = speck::encrypt_block(m, 0x0f0e0d0c0b0a09080706050403020100);
+    if res != 0xa65d9851797832657860fedf5c570d18
     {
-        1
+        return 0;
     }
-    else
-    {
-        0
-    }
+    1
 }
 
 #[no_mangle]
