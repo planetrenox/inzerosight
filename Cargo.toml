@@ -6,13 +6,7 @@ edition = "2021"
 [lib]
 crate_type = ["cdylib"]
 path = "src/.rs"
-test = false
+test = true
 
 [dependencies]
-byteorder = "1.4.3"
 proc-macro2 = "1.0.43"
-
-
-
-
-

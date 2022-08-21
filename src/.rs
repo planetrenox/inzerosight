@@ -2,27 +2,25 @@
 #![feature(proc_macro_hygiene)]
 #![allow(unstable_features)]
 
-use byteorder::ReadBytesExt;
 use std::alloc::{alloc, Layout};
 use std::slice::from_raw_parts_mut;
 
 #[no_mangle]
 pub fn speck_128_encrypt(data: *mut u8, len: usize) -> i32
 {
-    let y = unsafe { from_raw_parts_mut(data as *mut u8, len) };
-    // reverse y
-    for i in 0..y.len() / 2
+    let k: u128 = 0x0f0e0d0c0b0a09080706050403020100;
+    let m_slice = unsafe { from_raw_parts_mut(data as *mut u8, len) };
+    m_slice.reverse();
+    let m: u128 = m_slice.iter().fold(0, |acc, &x| (acc << 8) | x as u128);
+    let res = speck::encrypt_block(m, k);
+    if res == 0xa65d9851797832657860fedf5c570d18
     {
-        let tmp = y[i];
-        y[i] = y[y.len() - 1 - i];
-        y[y.len() - 1 - i] = tmp;
+        1
     }
-
-    let res = speck::encrypt_block(y.as_mut_ptr() as u128, 0x0f0e0d0c0b0a09080706050403020100);
-    // place res in y
-    // TODO
-
-    0
+    else
+    {
+        0
+    }
 }
 
 #[no_mangle]
@@ -109,85 +107,84 @@ mod speck
         schedule: [u64; ROUNDS as usize],
     }
 
-    impl Key
-    {
-        pub fn new(k: u128) -> Key
-        {
-            let mut k1 = (k >> 64) as u64;
-            let mut k2 = k as u64;
-
-            let mut ret = Key {
-                schedule: [0; ROUNDS as usize],
-            };
-
-            // Run `ROUNDS - 1` rounds to generate the key's endpoint (the last key in the schedule).
-            for i in 0..ROUNDS
-            {
-                // Insert the key into the schedule.
-                ret.schedule[i as usize] = k2;
-
-                // The beautiful thing about SPECK is that it reuses its round function to generate the
-                // key schedule.
-                ER64!(k1, k2, i);
-            }
-
-            ret
-        }
-
-        /// Encrypt a 128-bit block with this key.
-        pub fn encrypt_block(&self, m: u128) -> u128
-        {
-            let mut m1 = (m >> 64) as u64;
-            let mut m2 = m as u64;
-
-            // We run a round for every subkey in the generated key schedule.
-            for &k in &self.schedule
-            {
-                ER64!(m1, m2, k);
-            }
-
-            m2 as u128 | (m1 as u128) << 64
-        }
-
-        /// Decrypt a 128-bit block with this key.
-        pub fn decrypt_block(&self, c: u128) -> u128
-        {
-            let mut c1 = (c >> 64) as u64;
-            let mut c2 = c as u64;
-
-            // We run a round for every subkey in the generated key schedule.
-            for &k in self.schedule.iter().rev()
-            {
-                // Run a round on the message.
-                DR64!(c1, c2, k);
-            }
-
-            c2 as u128 | (c1 as u128) << 64
-        }
-    }
+    // impl Key
+    // {
+    //     pub fn new(k: u128) -> Key
+    //     {
+    //         let mut k1 = (k >> 64) as u64;
+    //         let mut k2 = k as u64;
+    //
+    //         let mut ret = Key {
+    //             schedule: [0; ROUNDS as usize],
+    //         };
+    //
+    //         // Run `ROUNDS - 1` rounds to generate the key's endpoint (the last key in the schedule).
+    //         for i in 0..ROUNDS
+    //         {
+    //             // Insert the key into the schedule.
+    //             ret.schedule[i as usize] = k2;
+    //
+    //             // The beautiful thing about SPECK is that it reuses its round function to generate the
+    //             // key schedule.
+    //             ER64!(k1, k2, i);
+    //         }
+    //
+    //         ret
+    //     }
+    //
+    //     /// Encrypt a 128-bit block with this key.
+    //     pub fn encrypt_block(&self, m: u128) -> u128
+    //     {
+    //         let mut m1 = (m >> 64) as u64;
+    //         let mut m2 = m as u64;
+    //
+    //         // We run a round for every subkey in the generated key schedule.
+    //         for &k in &self.schedule
+    //         {
+    //             ER64!(m1, m2, k);
+    //         }
+    //
+    //         m2 as u128 | (m1 as u128) << 64
+    //     }
+    //
+    //     /// Decrypt a 128-bit block with this key.
+    //     pub fn decrypt_block(&self, c: u128) -> u128
+    //     {
+    //         let mut c1 = (c >> 64) as u64;
+    //         let mut c2 = c as u64;
+    //
+    //         // We run a round for every subkey in the generated key schedule.
+    //         for &k in self.schedule.iter().rev()
+    //         {
+    //             // Run a round on the message.
+    //             DR64!(c1, c2, k);
+    //         }
+    //
+    //         c2 as u128 | (c1 as u128) << 64
+    //     }
+    // }
 
     #[cfg(test)]
     mod tests
     {
         use super::*;
-        use byteorder::{LittleEndian, ReadBytesExt};
 
-        #[test]
-        fn encrypt_decrypt()
-        {
-            for mut x in 0u128..90000
-            {
-                // <3
-                x = x.wrapping_mul(0x6eed0e9da4d94a4f6eed0e9da4d94a4f);
-                x ^= (x >> 6) >> (x >> 122);
-                x = x.wrapping_mul(0x6eed0e9da4d94a4f6eed0e9da4d94a4f);
-
-                let key = Key::new(!x);
-
-                assert_eq!(key.decrypt_block(key.encrypt_block(x)), x);
-                assert_eq!(key.encrypt_block(x), encrypt_block(x, !x));
-            }
-        }
+        // #[test]
+        // fn encrypt_decrypt()
+        // {
+        //     for mut x in 0u128..90000
+        //     {
+        //         // <3
+        //         x = x.wrapping_mul(0x6eed0e9da4d94a4f6eed0e9da4d94a4f);
+        //         x ^= (x >> 6) >> (x >> 122);
+        //         x = x.wrapping_mul(0x6eed0e9da4d94a4f6eed0e9da4d94a4f);
+        //
+        //         let key = Key::new(!x);
+        //
+        //         assert_eq!(key.decrypt_block(key.encrypt_block(x)), x);
+        //         assert_eq!(key.encrypt_block(x), encrypt_block(x, !x));
+        //     }
+        // }
 
         #[test]
         fn test_vectors()
@@ -196,17 +193,6 @@ mod speck
             assert_eq!(
                 encrypt_block(
                     0x6c617669757165207469206564616d20,
-                    0x0f0e0d0c0b0a09080706050403020100,
-                ),
-                0xa65d9851797832657860fedf5c570d18
-            );
-
-            assert_eq!(
-                encrypt_block(
-                    " made it equival"
-                        .as_bytes()
-                        .read_u128::<LittleEndian>()
-                        .unwrap(),
                     0x0f0e0d0c0b0a09080706050403020100,
                 ),
                 0xa65d9851797832657860fedf5c570d18

@@ -30,7 +30,7 @@ const DES = {
     encode: (text) => Array.from(text).map(x => x.codePointAt(0).toString(6).split('').map(x => DES.code[x]).join('')).join(DES.code.unifier),
     decode: (text) => text.split(DES.code.unifier).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(DES.code).find(k => DES.code[k] === z)).join(''), 6))).join(''),
     CRY: {
-        NO: async (plaintext, cipher) =>
+        NO: async (cipher, plaintext) =>
         {
             const wasm_enscry = await fetch(".wasm").then(res => res.arrayBuffer()).then(bytes => WebAssembly.instantiate(bytes, {}));
             let uint8arr_256 = new TextEncoder().encode(plaintext); // should be 256 bits + key
@@ -38,29 +38,15 @@ const DES = {
             let wasmArr = new Uint8Array(wasm_enscry.instance.exports.memory.buffer, pt_uint8arr_256, uint8arr_256.length);
             wasmArr.set(uint8arr_256);
             const response = wasm_enscry.instance.exports[cipher](pt_uint8arr_256, uint8arr_256.length);
-            // print wasmArr in hex
-            for(let i = 0; i < wasmArr.length; i++)
-            {
-                console.log(wasmArr[i].toString(16));
-            }
+
+            for (let i = 0; i < wasmArr.length; i++) console.log(wasmArr[i].toString(16));
+            console.log(response);
         }
     }
 };
 
 
-DES.CRY.NO(" made it equival", "speck_128_encrypt");
-
-
-// async function sendMemoryFromJavaScript()
-// {
-//     let jsArr = Uint8Array.from("d");
-//     const len = jsArr.length;
-//     let wasmArrPtr = enscry.instance.exports.malloc(length);
-//     let wasmArr = new Uint8Array(enscry.instance.exports.memory.buffer, wasmArrPtr, len);
-//     wasmArr.set(jsArr);
-//     const sum = enscry.instance.exports.accumulate(wasmArrPtr, len);
-//     console.log(sum);
-// }
+DES.CRY.NO("speck_128_encrypt", " made it equival");
 
 
 // https://soundcloud.com/crystal-castles/pino-placentile-wooden-girl
