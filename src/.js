@@ -1,14 +1,16 @@
-//! entry script when extension icon is clicked
-let SCRY = WebAssembly.instantiateStreaming(fetch(".wasm"), {}).then(obj => obj.instance.exports);
-let textarea = document.getElementById("textarea");
-let cipher = document.getElementById("cipher");
+const textarea = document.getElementById("textarea");
+const cipher = document.getElementById("cipher");
 document.getElementById("en").addEventListener("click", ACT);
 document.getElementById("de").addEventListener("click", ACT);
 
 
+//passMemoryToJavaScript();
+
+
 function ACT(event)
 {
-    if (textarea.value === "") {
+    if (textarea.value === "")
+    {
         textarea.value = "The text box is empty.";
         return;
     }
@@ -20,33 +22,33 @@ function ACT(event)
 
 
 /** Zero Width Unicode Standard — Senary */
-const DES =
-    {
-        CODE:
+const DES = {
+    code: {
+        0: "\u{180E}", 1: "\u{200B}", 2: "\u{200C}", 3: "\u{200D}", 4: "\u{200E}", 5: "\u{2060}", unifier: "\u{FEFF}"
+    },
+
+    encode: (text) => Array.from(text).map(x => x.codePointAt(0).toString(6).split('').map(x => DES.code[x]).join('')).join(DES.code.unifier),
+    decode: (text) => text.split(DES.code.unifier).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(DES.code).find(k => DES.code[k] === z)).join(''), 6))).join(''),
+    CRY: {
+        NO: async (plaintext, cipher) =>
+        {
+            const wasm_enscry = await fetch(".wasm").then(res => res.arrayBuffer()).then(bytes => WebAssembly.instantiate(bytes, {}));
+            let uint8arr_256 = new TextEncoder().encode(plaintext); // should be 256 bits + key
+            let pt_uint8arr_256 = wasm_enscry.instance.exports.malloc(uint8arr_256.length);
+            let wasmArr = new Uint8Array(wasm_enscry.instance.exports.memory.buffer, pt_uint8arr_256, uint8arr_256.length);
+            wasmArr.set(uint8arr_256);
+            const response = wasm_enscry.instance.exports[cipher](pt_uint8arr_256, uint8arr_256.length);
+            // print wasmArr in hex
+            for(let i = 0; i < wasmArr.length; i++)
             {
-                0: "\u{180E}",
-                1: "\u{200B}",
-                2: "\u{200C}",
-                3: "\u{200D}",
-                4: "\u{200E}",
-                5: "\u{2060}",
-                unifier: "\u{FEFF}"
-            },
+                console.log(wasmArr[i].toString(16));
+            }
+        }
+    }
+};
 
-        EN: (text) => Array.from(text).map(x => x.codePointAt(0).toString(6).split('').map(x => DES.CODE[x]).join('')).join(DES.CODE.unifier),
-        DE: (text) => text.split(DES.CODE.unifier).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(DES.CODE).find(k => DES.CODE[k] === z)).join(''), 6))).join('')
-    };
 
-const CRY =
-    {
-        CIPHER:
-            {
-                SPECK_128: 'SPECK_128'
-            },
-
-        YES: (text, cipher, key, mode) => SCRY.then(xp => xp['en' + cipher]).then(fn => console.log(fn(1, 2))),
-        NO: (text, cipher, key, mode) => SCRY.then(xp => xp['de' + cipher]).then(fn => console.log(fn(1, 2)))
-    };
+DES.CRY.NO(" made it equival", "speck_128_encrypt");
 
 
 // async function sendMemoryFromJavaScript()

@@ -10,7 +10,7 @@ test = false
 
 [dependencies]
 byteorder = "1.4.3"
-proc-macro2 = "1.0"
+proc-macro2 = "1.0.43"
 
 
 

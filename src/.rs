@@ -1,24 +1,28 @@
 #![feature(decl_macro)]
 #![feature(proc_macro_hygiene)]
 #![allow(unstable_features)]
-#![allow(non_snake_case)]
 
+use byteorder::ReadBytesExt;
 use std::alloc::{alloc, Layout};
-
-
-
-#[no_mangle]
-pub extern fn add(a: u32, b: u32) -> u32
-{
-
-    a + b
-}
-
+use std::slice::from_raw_parts_mut;
 
 #[no_mangle]
-pub extern fn enSPECK_128(a: u32, b: u32) -> u32
+pub fn speck_128_encrypt(data: *mut u8, len: usize) -> i32
 {
-    a + b
+    let y = unsafe { from_raw_parts_mut(data as *mut u8, len) };
+    // reverse y
+    for i in 0..y.len() / 2
+    {
+        let tmp = y[i];
+        y[i] = y[y.len() - 1 - i];
+        y[y.len() - 1 - i] = tmp;
+    }
+
+    let res = speck::encrypt_block(y.as_mut_ptr() as u128, 0x0f0e0d0c0b0a09080706050403020100);
+    // place res in y
+    // TODO
+
+    0
 }
 
 #[no_mangle]
@@ -45,17 +49,6 @@ pub fn malloc(size: usize) -> *mut u8
     std::process::abort()
 }
 
-#[no_mangle]
-pub fn accumulate(data: *mut u8, len: usize) -> i32
-{
-    let y = unsafe { std::slice::from_raw_parts(data as *const u8, len) };
-    let mut sum = 0;
-    for i in 0..len
-    {
-        sum = sum + y[i];
-    }
-    sum as i32
-}
 // https://github.com/tuxxy/speck/blob/master/src/lib.rs
 // https://github.com/orangeblock/speckr/blob/master/src/lib.rs
 // https://github.com/MarkusAkesson/speck/blob/master/src/lib.rs
@@ -69,6 +62,7 @@ mod speck
         $x = $x.rotate_right(8).wrapping_add($y) ^ $k;
         $y = $y.rotate_left(3) ^ $x
     }
+
     macro DR64($x:ident, $y:ident, $k:ident) {
         $y = ($y ^ $x).rotate_right(3);
         $x = ($x ^ $k).wrapping_sub($y).rotate_left(8);
@@ -202,7 +196,7 @@ mod speck
             assert_eq!(
                 encrypt_block(
                     0x6c617669757165207469206564616d20,
-                    0x0f0e0d0c0b0a09080706050403020100
+                    0x0f0e0d0c0b0a09080706050403020100,
                 ),
                 0xa65d9851797832657860fedf5c570d18
             );
@@ -213,7 +207,7 @@ mod speck
                         .as_bytes()
                         .read_u128::<LittleEndian>()
                         .unwrap(),
-                    0x0f0e0d0c0b0a09080706050403020100
+                    0x0f0e0d0c0b0a09080706050403020100,
                 ),
                 0xa65d9851797832657860fedf5c570d18
             );
