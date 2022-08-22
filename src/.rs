@@ -1,6 +1,10 @@
 #![feature(decl_macro)]
 #![feature(proc_macro_hygiene)]
 #![allow(unstable_features)]
+#![allow(dead_code)]
+#![allow(unused_macros)]
+
+extern crate proc_macro2; // https://crates.io/api/v1/crates/proc-macro2/1.0.43/download
 
 use std::alloc::{alloc, Layout};
 use std::slice::from_raw_parts_mut;
