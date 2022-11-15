@@ -1,11 +1,11 @@
 const createSpeck = require('generic-speck')
 
-// const speck48_96 = createSpeck({
-//     bits: 24,
-//     rounds: 23,
-//     rightRotations: 8,
-//     leftRotations: 3
-// })
+const speck48_96 = createSpeck({
+    bits: 24,
+    rounds: 23,
+    rightRotations: 8,
+    leftRotations: 3
+})
 // const key = [0x020100, 0x0a0908, 0x121110, 0x1a1918]
 // const originalInteger = 0x6968746d2073
 // const obfuscatedInteger = speck48_96.encrypt(originalInteger, key)
@@ -26,12 +26,16 @@ function ACT (event)
         return
     }
 
-
-    textarea.value = event.target.id === "decodeButton" ? DES.CRY.YES[cipher.value](textarea.value) : DES.CRY.NO[cipher.value](textarea.value)
-
-    <HTMLTextAreaElement>textarea.select()
-    document.execCommand("copy")
-    textarea.value = "Copied to your clipboard. A copy has been placed beginning from next line:\n" + textarea.value
+    if (event.target.id === "decodeButton")
+    {
+        textarea.value = DES.CRY.YES[cipher.value](textarea.value)
+    } else
+    {
+        textarea.value = DES.CRY.NO[cipher.value](textarea.value)
+        textarea.select()
+        document.execCommand("copy")
+        textarea.value = "Copied to your clipboard.\n A copy has been placed between these brackets [" + textarea.value + "]"
+    }
 }
 
 /** Zero Width Unicode Standard — Senary */
