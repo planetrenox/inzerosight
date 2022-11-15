@@ -1,4 +1,4 @@
-const createSpeck = require('generic-speck') // https://www.npmjs.com/package/generic-speck
+const createSpeck = require('generic-speck') 
 
 const speck48_96 = createSpeck({
     bits: 24,

@@ -1,7 +1,6 @@
 {
-  "name": "inzerosight",
-  "version": "1.0.0",
   "dependencies": {
+    "browserify": "^17.0.0",
     "generic-speck": "^1.1.1"
   }
 }
