@@ -8,5 +8,14 @@
         *
 
 
-# 2022-07-04 still blind
-# 2022-08-20 still blind
+
+
+https://nodejs.org/en/download/
+npm install -g browserify
+browserify .js -o bundle.js
+
+
+
+# 2022-07-04        still blind
+# 2022-08-20        still blind
+# 2022-11-14        no longer blind -RENOX
