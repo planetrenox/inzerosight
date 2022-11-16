@@ -1,12 +1,7 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 const createSpeck = require('generic-speck')
 
-const speck48_96 = createSpeck({
-    bits: 24,
-    rounds: 23,
-    rightRotations: 8,
-    leftRotations: 3
-})
+const speck32_64 = createSpeck()
 
 // https://eprint.iacr.org/2013/404.pdf#page=17
 // Speck 48/96
@@ -15,8 +10,8 @@ const speck48_96 = createSpeck({
 // Ciphertext: 735e10 b6445d
 
 const key = [0x020100, 0x0a0908, 0x121110, 0x1a1918]
-const originalInteger = 0x6968746d2073
-const obfuscatedInteger = speck48_96.encrypt(originalInteger, key)
+const originalInteger = 0x4
+const obfuscatedInteger = speck32_64.encrypt(originalInteger, key)
 console.log(obfuscatedInteger.toString(16))
 
 
