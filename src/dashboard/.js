@@ -13,10 +13,10 @@ const speck48_96 = createSpeck({
 // Plaintext: 6d2073 696874
 // Ciphertext: 735e10 b6445d
 
-const key = [0x020100, 0x0a0908, 0x121110, 0x1a1918]
-const originalInteger = 0x6968746d2073
-const obfuscatedInteger = speck48_96.encrypt(originalInteger, key)
-console.log(obfuscatedInteger.toString(16))
+// const key = [0x020100, 0x0a0908, 0x121110, 0x1a1918]
+// const originalInteger = 0x6968746d2073
+// const obfuscatedInteger = speck48_96.encrypt(originalInteger, key)
+// console.log(obfuscatedInteger.toString(16))
 
 
 const textarea = document.getElementById("textarea")
@@ -26,28 +26,29 @@ document.getElementById("decodeButton").addEventListener("click", ACT)
 
 function ACT (event)
 {
-
     if (textarea.value === "")
     {
-        textarea.value = "The text box is empty."
+        alert("The text box is empty.");
         return
     }
 
     if (event.target.id === "decodeButton")
     {
-        textarea.value = DES.CRY.YES[cipher.value](textarea.value)
+        textarea.value = DES.CRY.YES[cipher.value](textarea.value, cipher.value !== "PLAIN" ? window.prompt("Encryption key to be used:","") : null)
     } else
     {
-        textarea.value = DES.CRY.NO[cipher.value](textarea.value)
+        textarea.value = DES.CRY.NO[cipher.value](textarea.value, cipher.value !== "PLAIN" ? window.prompt("Encryption key to be used:","") : null)
         textarea.select()
         document.execCommand("copy")
         textarea.value = "Copied to your clipboard.\n A copy has been placed between these brackets [" + textarea.value + "]"
     }
-}
+} // https://soundcloud.com/crystal-castles/pino-placentile-wooden-girl
+
+
 
 /** Zero Width Unicode Standard — Senary */
 const DES = {
-    code: {
+    alphabet: {
         0: "\u{180E}",
         1: "\u{200B}",
         2: "\u{200C}",
@@ -57,18 +58,18 @@ const DES = {
         unifier: "\u{FEFF}"
     },
 
-    encode: (text) => Array.from(text).map(x => x.codePointAt(0).toString(6).split('').map(x => DES.code[x]).join('')).join(DES.code.unifier),
-    decode: (text) => text.split(DES.code.unifier).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(DES.code).find(k => DES.code[k] === z)).join(''), 6))).join(''),
-    
+    encode: (text) => Array.from(text).map(x => x.codePointAt(0).toString(6).split('').map(x => DES.alphabet[x]).join('')).join(DES.alphabet.unifier),
+    decode: (text) => text.split(DES.alphabet.unifier).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(DES.alphabet).find(k => DES.alphabet[k] === z)).join(''), 6))).join(''),
+
+
     CRY: {
         NO: {
-            SPECK48_96: () => "worDks",
-            PLAIN: (plaintext) => DES.encode(plaintext)
+            PLAIN: (plaintext) => DES.encode(plaintext),
+            SPECK48_96: (plaintext, key) => plaintext.codePointAt(0)
         },
         YES: {
-            PLAIN: (plaintext) => DES.decode(plaintext)
+            PLAIN: (plaintext) => DES.decode(plaintext),
+            SPECK48_96: (plaintext, key) => key
         }
     }
-};
-
-// https://soundcloud.com/esudesu/tried-luvletter
+}; // https://soundcloud.com/esudesu/tried-luvletter
