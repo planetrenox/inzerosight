@@ -13,10 +13,10 @@ const speck48_96 = createSpeck({
 // Plaintext: 6d2073 696874
 // Ciphertext: 735e10 b6445d
 
-// const key = [0x020100, 0x0a0908, 0x121110, 0x1a1918]
-// const originalInteger = 0x6968746d2073
-// const obfuscatedInteger = speck48_96.encrypt(originalInteger, key)
-// console.log(obfuscatedInteger.toString(16))
+const key = [0x020100, 0x0a0908, 0x121110, 0x1a1918]
+const originalInteger = 0x6968746d2073
+const obfuscatedInteger = speck48_96.encrypt(originalInteger, key)
+console.log(obfuscatedInteger.toString(16))
 
 
 const textarea = document.getElementById("textarea")
@@ -55,7 +55,7 @@ const DES = {
         3: "\u{200D}",
         4: "\u{200E}",
         5: "\u{2060}",
-        unifier: "\u{FEFF}"
+        unifier: "\u{200F}"
     },
 
     encode: (text) => Array.from(text).map(x => x.codePointAt(0).toString(6).split('').map(x => DES.alphabet[x]).join('')).join(DES.alphabet.unifier),
@@ -72,4 +72,7 @@ const DES = {
             SPECK48_96: (plaintext, key) => key
         }
     }
-}; // https://soundcloud.com/esudesu/tried-luvletter
+} // https://soundcloud.com/esudesu/tried-luvletter
+
+
+console.log("😀".codePointAt(0).toString(16))
