@@ -43,8 +43,8 @@ const ZWUS6 = {
                 SPECK48_96: (plaintext, key) =>
                 {
                     const speck48_96 = createSpeck({bits: 24, rounds: 23, rightRotations: 8, leftRotations: 3})
-                    const key96 = blake.blake2bHex(key, null, 12) // digest key to fixed length of 96 bits
-                    const key96blk = [key96.slice(0, 6).toString(16), key96.slice(6, 12).toString(16), key96.slice(12, 18).toString(16), key96.slice(18, 24).toString(16)]
+                    const key96 = blake.blake2bHex(key, new Uint8Array([2,4]) , 12) // digest key to fixed length of 96 bits
+                    const key96blk = [key96.slice(0, 6), key96.slice(6, 12), key96.slice(12, 18), key96.slice(18, 24)]
                     console.log(key96blk)
                     console.log(speck48_96.encrypt(plaintext, key96blk))
                     console.log(speck48_96.decrypt(plaintext, key96blk))
@@ -59,7 +59,7 @@ const ZWUS6 = {
     }
 } // https://soundcloud.com/esudesu/tried-luvletter
 
-ZWUS6.DES.CRY.NO.SPECK48_96("Hello".toString(16), "passd!".toString(16))
+ZWUS6.DES.CRY.NO.SPECK48_96("b", "a")
 },{"blakejs":4,"generic-speck":6}],2:[function(require,module,exports){
 // Blake2B in pure Javascript
 // Adapted from the reference implementation in RFC7693
