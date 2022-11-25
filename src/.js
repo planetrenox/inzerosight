@@ -1,5 +1,14 @@
-const createSpeck = require('blakejs')
-const blake = require('speck.js');
+const createSpeck = require('generic-speck')
+const blake = require('blakejs')
+
+
+const speck = createSpeck({
+    bits: 24,
+    rounds: 23,
+    rightRotations: 8,
+    leftRotations: 3
+})
+
 
 const textarea = document.getElementById("textarea")
 const cipherDropdown = document.getElementById("cipher")
@@ -39,11 +48,14 @@ const ZWUS6 = {
 
         CRY: {
             NO: {
-                SPECK48_96: (plaintext, key) =>
+                SPECK48_96: (pt24, kStr) =>
                 {
-                    const key96 = blake.blake2bHex(key, null , 12) // digest key to fixed length of 96 bits
-                    
-                    
+                    const key96 = blake.blake2bHex(kStr, null , 12) // expand key to fixed length of 96 bits
+                    let key96arr = [parseInt(key96.slice(0, 6), 16), parseInt(key96.slice(6, 12), 16), parseInt(key96.slice(12, 18), 16), parseInt(key96.slice(18, 24), 16)]
+                    const obfuscatedInteger = speck.encrypt(pt24, key96arr)
+                    console.log(obfuscatedInteger.toString(16))
+                    const deobfuscatedInteger = speck.decrypt(obfuscatedInteger, key96arr)
+                    console.log(deobfuscatedInteger.toString(16))
                 }, 
                 PLAIN: (plaintext) => ZWUS6.DES.encode(plaintext)
             }, 
@@ -54,4 +66,4 @@ const ZWUS6 = {
     }
 } // https://soundcloud.com/esudesu/tried-luvletter
 
-ZWUS6.DES.CRY.NO.SPECK48_96("b", "a")
+ZWUS6.DES.CRY.NO.SPECK48_96(0x200000300000, "a")

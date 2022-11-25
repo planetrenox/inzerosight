@@ -3,7 +3,7 @@
 
 BLDDIR="../build"
 
-cd ../src && npx browserify dashboard/.js -o $BLDDIR/firefox/.js
-cp dashboard/.html $BLDDIR/firefox/.html
-cp dashboard/.png $BLDDIR/firefox/.png
-cp dashboard/.woff $BLDDIR/firefox/.woff
+cd ../src && npx browserify .js -o $BLDDIR/firefox/.js
+cp .html $BLDDIR/firefox/.html
+cp .png $BLDDIR/firefox/.png
+cp .woff $BLDDIR/firefox/.woff
