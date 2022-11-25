@@ -959,10 +959,13 @@ const ZWUS6 = {
             NO: {
                 SPECK48_96: (pt24, kStr) =>
                 {
+                    // TODO use stringbuilder for pt and feed it to the speck function
+                    
+                    
+                    
                     const key96 = blake.blake2bHex(kStr, null , 12) // expand key to fixed length of 96 bits
                     let key96arr = [parseInt(key96.slice(0, 6), 16), parseInt(key96.slice(6, 12), 16), parseInt(key96.slice(12, 18), 16), parseInt(key96.slice(18, 24), 16)]
-                    let plaintext = 0x200000300000
-                    const obfuscatedInteger = speck.encrypt(plaintext, key96arr)
+                    const obfuscatedInteger = speck.encrypt(pt24, key96arr)
                     console.log(obfuscatedInteger.toString(16))
                     const deobfuscatedInteger = speck.decrypt(obfuscatedInteger, key96arr)
                     console.log(deobfuscatedInteger.toString(16))
@@ -976,5 +979,5 @@ const ZWUS6 = {
     }
 } // https://soundcloud.com/esudesu/tried-luvletter
 
-ZWUS6.DES.CRY.NO.SPECK48_96("b", "a")
+ZWUS6.DES.CRY.NO.SPECK48_96(0x200000300000, "a")
 },{"blakejs":3,"generic-speck":5}]},{},[6]);

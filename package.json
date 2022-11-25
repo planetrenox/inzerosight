@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "blakejs": "^1.2.1",
-    "generic-speck": "^1.1.1",
-    "speck.js": "^0.1.0"
-  }
-}

@@ -1,7 +1,0 @@
-**/*.svn
-**/*.git
-**/*.idea
-**/*.stackdump
-
-**/*.lock
-**/target

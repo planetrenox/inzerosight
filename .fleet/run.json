@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "command",
+            "name": "build.cmd",
+            "program": "$PROJECT_DIR$/build/build-run.cmd",
+        },
+        {
+            "type": "command",
+            "name": "build.sh",
+            "program": "$PROJECT_DIR$/build/build-run.sh",
+        },
+    ]
+}
