@@ -1,5 +1,14 @@
-const createSpeck = require('blakejs')
-const blake = require('speck.js');
+const createSpeck = require('generic-speck')
+const blake = require('blakejs')
+
+
+const speck = createSpeck({
+    bits: 24,
+    rounds: 23,
+    rightRotations: 8,
+    leftRotations: 3
+})
+
 
 const textarea = document.getElementById("textarea")
 const cipherDropdown = document.getElementById("cipher")
@@ -42,7 +51,16 @@ const ZWUS6 = {
                 SPECK48_96: (plaintext, key) =>
                 {
                     const key96 = blake.blake2bHex(key, null , 12) // digest key to fixed length of 96 bits
+                    console.log(key96.toString(16))
                     
+                    key = [parseInt(key96.slice(0, 6), 16), parseInt(key96.slice(6, 12), 16), parseInt(key96.slice(12, 18), 16), parseInt(key96.slice(18, 24), 16)]
+                    console.log(key)
+                    const originalInteger = 0x10000000
+                    const obfuscatedInteger = speck.encrypt(originalInteger, key)
+                    console.log(obfuscatedInteger.toString(16)) 
+
+                    const deobfuscatedInteger = speck.decrypt(obfuscatedInteger, key)
+                    //console.log(obfuscatedInteger.toString(16)) 
                     
                 }, 
                 PLAIN: (plaintext) => ZWUS6.DES.encode(plaintext)
