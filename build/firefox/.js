@@ -959,9 +959,10 @@ const ZWUS6 = {
             NO: {
                 SPECK48_96: (pt24, kStr) =>
                 {
-                    // TODO use stringbuilder for pt and feed it to the speck function
+                    console.log(pt24.map(x => x.toString(16).padStart(6, '0')).join(''))
+                   
                     
-                    
+                    console.log("test")
                     
                     const key96 = blake.blake2bHex(kStr, null , 12) // expand key to fixed length of 96 bits
                     let key96arr = [parseInt(key96.slice(0, 6), 16), parseInt(key96.slice(6, 12), 16), parseInt(key96.slice(12, 18), 16), parseInt(key96.slice(18, 24), 16)]
