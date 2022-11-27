@@ -36,29 +36,28 @@ const ZWUS6 = {
             0: "\u{180E}", 1: "\u{200B}", 2: "\u{200C}", 3: "\u{200D}", 4: "\u{200E}", 5: "\u{200F}", unifier: "\u{2060}"
         },
 
-        encodeFromString: (text) => Array.from(text, x => x.codePointAt(0).toString(6).split('').map(x => ZWUS6.DES.alphabet[x]).join('')).join(ZWUS6.DES.alphabet.unifier),
-        encodeFromBase6StringArray: (base6StringArray) => base6StringArray.map(x => x.split('').map(x => ZWUS6.DES.alphabet[x]).join('')).join(ZWUS6.DES.alphabet.unifier),
-        decode: (text) => text.split(ZWUS6.DES.alphabet.unifier).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(ZWUS6.DES.alphabet).find(k => ZWUS6.DES.alphabet[k] === z)).join(''), 6))).join(''),
+        encodeString: (text) => Array.from(text, u => u.codePointAt(0).toString(6).split('').map(x => ZWUS6.DES.alphabet[x]).join('')).join(ZWUS6.DES.alphabet.unifier),
+        encodeNumberArray: (arr) => arr.map(n => n.toString(6).split('').map(x => ZWUS6.DES.alphabet[x]).join('')).join(ZWUS6.DES.alphabet.unifier),
+        decodeString: (text) => text.split(ZWUS6.DES.alphabet.unifier).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(ZWUS6.DES.alphabet).find(k => ZWUS6.DES.alphabet[k] === z)).join(''), 6))).join(''),
+        decodeNumber: (text) => text.split(ZWUS6.DES.alphabet.unifier).map(x => parseInt(Array.from(x).map(z => Object.keys(ZWUS6.DES.alphabet).find(k => ZWUS6.DES.alphabet[k] === z)).join(''), 6)).join(''),
 
         CRY: {
             NO: {
                 SPECK48_96: (ptStr, kStr) =>
                 {
-                    const key64 = blake.blake2bHex(kStr, null , 8) // expand key to fixed length of 64 bits
-                    const key64arr = [parseInt(key64.slice(0, 4), 16), parseInt(key64.slice(4, 8), 16), parseInt(key64.slice(8, 12), 16), parseInt(key64.slice(12, 16), 16)]
-                    let enc = Array.from(ptStr, c => speck32_64.encrypt(c.codePointAt(0), key64arr).toString(6))
-
-                    let encoded = ZWUS6.DES.encodeFromBase6StringArray(enc).codePointAt(0)
-                    
-                    
-                    console.log(ZWUS6.DES.decode(encoded))
-
-
+                    const key64bit = blake.blake2bHex(kStr, null , 8) // expand key to fixed length of 64 bits
+                    const key64arr = [parseInt(key64bit.slice(0, 4), 16), parseInt(key64bit.slice(4, 8), 16), parseInt(key64bit.slice(8, 12), 16), parseInt(key64bit.slice(12, 16), 16)]
+                    const encryptedCodepointsArray = Array.from(ptStr, c => speck32_64.encrypt(c.codePointAt(0), key64arr))
+                    return ZWUS6.DES.encodeNumberArray(encryptedCodepointsArray)
                 }, 
-                PLAIN: (plaintext) => ZWUS6.DES.encodeFromString(plaintext)
+                PLAIN: (plaintext) => ZWUS6.DES.encodeString(plaintext)
             }, 
             YES: {
-                PLAIN: (plaintext) => ZWUS6.DES.decode(plaintext)
+                SPECK48_96: (ptStr, kStr) =>
+                {
+                    return ZWUS6.DES.decodeString(ptStr)
+                },
+                PLAIN: (plaintext) => ZWUS6.DES.decodeString(plaintext)
             }
         }
     }

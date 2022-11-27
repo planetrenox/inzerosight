@@ -909,14 +909,7 @@ module.exports = speck
 },{}],6:[function(require,module,exports){
 const createSpeck = require('generic-speck')
 const blake = require('blakejs')
-
-
-const speck = createSpeck({
-    bits: 24,
-    rounds: 23,
-    rightRotations: 8,
-    leftRotations: 3
-})
+const speck32_64 = createSpeck()
 
 
 const textarea = document.getElementById("textarea")
@@ -952,33 +945,32 @@ const ZWUS6 = {
             0: "\u{180E}", 1: "\u{200B}", 2: "\u{200C}", 3: "\u{200D}", 4: "\u{200E}", 5: "\u{200F}", unifier: "\u{2060}"
         },
 
-        encode: (text) => Array.from(text).map(x => x.codePointAt(0).toString(6).split('').map(x => ZWUS6.DES.alphabet[x]).join('')).join(ZWUS6.DES.alphabet.unifier),
-        decode: (text) => text.split(ZWUS6.DES.alphabet.unifier).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(ZWUS6.DES.alphabet).find(k => ZWUS6.DES.alphabet[k] === z)).join(''), 6))).join(''),
+        encodeString: (text) => Array.from(text, u => u.codePointAt(0).toString(6).split('').map(x => ZWUS6.DES.alphabet[x]).join('')).join(ZWUS6.DES.alphabet.unifier),
+        encodeNumberArray: (arr) => arr.map(n => n.toString(6).split('').map(x => ZWUS6.DES.alphabet[x]).join('')).join(ZWUS6.DES.alphabet.unifier),
+        decodeString: (text) => text.split(ZWUS6.DES.alphabet.unifier).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(ZWUS6.DES.alphabet).find(k => ZWUS6.DES.alphabet[k] === z)).join(''), 6))).join(''),
+        decodeNumber: (text) => text.split(ZWUS6.DES.alphabet.unifier).map(x => parseInt(Array.from(x).map(z => Object.keys(ZWUS6.DES.alphabet).find(k => ZWUS6.DES.alphabet[k] === z)).join(''), 6)).join(''),
 
         CRY: {
             NO: {
-                SPECK48_96: (pt24, kStr) =>
+                SPECK48_96: (ptStr, kStr) =>
                 {
-                    console.log(pt24.map(x => x.toString(16).padStart(6, '0')).join(''))
-                   
+                    const key64bit = blake.blake2bHex(kStr, null , 8) // expand key to fixed length of 64 bits
+                    const key64arr = [parseInt(key64bit.slice(0, 4), 16), parseInt(key64bit.slice(4, 8), 16), parseInt(key64bit.slice(8, 12), 16), parseInt(key64bit.slice(12, 16), 16)]
+                    let enc = Array.from(ptStr, c => speck32_64.encrypt(c.codePointAt(0), key64arr))
+                    console.log(enc.map(x => String.fromCodePoint(speck32_64.decrypt(x, key64arr))))
+                    console.log(ZWUS6.DES.decodeNumber(ZWUS6.DES.encodeNumberArray(enc)))
                     
-                    console.log("test")
-                    
-                    const key96 = blake.blake2bHex(kStr, null , 12) // expand key to fixed length of 96 bits
-                    let key96arr = [parseInt(key96.slice(0, 6), 16), parseInt(key96.slice(6, 12), 16), parseInt(key96.slice(12, 18), 16), parseInt(key96.slice(18, 24), 16)]
-                    const obfuscatedInteger = speck.encrypt(pt24, key96arr)
-                    console.log(obfuscatedInteger.toString(16))
-                    const deobfuscatedInteger = speck.decrypt(obfuscatedInteger, key96arr)
-                    console.log(deobfuscatedInteger.toString(16))
+
+
                 }, 
-                PLAIN: (plaintext) => ZWUS6.DES.encode(plaintext)
+                PLAIN: (plaintext) => ZWUS6.DES.encodeString(plaintext)
             }, 
             YES: {
-                PLAIN: (plaintext) => ZWUS6.DES.decode(plaintext)
+                PLAIN: (plaintext) => ZWUS6.DES.decodeString(plaintext)
             }
         }
     }
 } // https://soundcloud.com/esudesu/tried-luvletter
 
-ZWUS6.DES.CRY.NO.SPECK48_96(0x200000300000, "a")
+ZWUS6.DES.CRY.NO.SPECK48_96("aab", "a")
 },{"blakejs":3,"generic-speck":5}]},{},[6]);
