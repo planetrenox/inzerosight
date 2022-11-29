@@ -55,6 +55,10 @@ const ZWUS6 = {
             YES: {
                 SPECK48_96: (ptStr, kStr) =>
                 {
+                    console.log("123")
+
+
+
                     return ZWUS6.DES.decodeString(ptStr)
                 },
                 PLAIN: (plaintext) => ZWUS6.DES.decodeString(plaintext)
@@ -63,4 +67,5 @@ const ZWUS6 = {
     }
 } // https://soundcloud.com/esudesu/tried-luvletter
 
-ZWUS6.DES.CRY.NO.SPECK48_96("aab", "a")
+let encoded = ZWUS6.DES.CRY.NO.SPECK48_96("aab", "a")
+ZWUS6.DES.CRY.YES.SPECK48_96(encoded)

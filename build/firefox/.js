@@ -956,21 +956,27 @@ const ZWUS6 = {
                 {
                     const key64bit = blake.blake2bHex(kStr, null , 8) // expand key to fixed length of 64 bits
                     const key64arr = [parseInt(key64bit.slice(0, 4), 16), parseInt(key64bit.slice(4, 8), 16), parseInt(key64bit.slice(8, 12), 16), parseInt(key64bit.slice(12, 16), 16)]
-                    let enc = Array.from(ptStr, c => speck32_64.encrypt(c.codePointAt(0), key64arr))
-                    console.log(enc.map(x => String.fromCodePoint(speck32_64.decrypt(x, key64arr))))
-                    console.log(ZWUS6.DES.decodeNumber(ZWUS6.DES.encodeNumberArray(enc)))
-                    
-
-
+                    const encryptedCodepointsArray = Array.from(ptStr, c => speck32_64.encrypt(c.codePointAt(0), key64arr))
+                    return ZWUS6.DES.encodeNumberArray(encryptedCodepointsArray)
                 }, 
                 PLAIN: (plaintext) => ZWUS6.DES.encodeString(plaintext)
             }, 
             YES: {
+                SPECK48_96: (ptStr, kStr) =>
+                {
+                    console.log("123")
+
+
+
+                    return ZWUS6.DES.decodeString(ptStr)
+                },
                 PLAIN: (plaintext) => ZWUS6.DES.decodeString(plaintext)
             }
         }
     }
 } // https://soundcloud.com/esudesu/tried-luvletter
 
-ZWUS6.DES.CRY.NO.SPECK48_96("aab", "a")
+let encoded = ZWUS6.DES.CRY.NO.SPECK48_96("aab", "a")
+ZWUS6.DES.CRY.YES.SPECK48_96(encoded)
+
 },{"blakejs":3,"generic-speck":5}]},{},[6]);
