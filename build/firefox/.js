@@ -926,9 +926,9 @@ function ACT(event) {
     }
 
     if (event.target.id === "decodeButton") {
-        textarea.value = DESCRY.YES[cipherDropdown.value](textarea.value)
+        textarea.value = DESCRY.YES[cipherDropdown.value](textarea.value, cipherDropdown.value !== "PLAIN" ? prompt("enter password.") : null)
     } else {
-        textarea.value = DESCRY.NO[cipherDropdown.value](textarea.value)
+        textarea.value = DESCRY.NO[cipherDropdown.value](textarea.value, cipherDropdown.value !== "PLAIN" ? prompt("enter password.") : null)
         textarea.select()
         document.execCommand("copy")
         textarea.value = "Copied to your clipboard.\n A copy has been placed between these brackets [" + textarea.value + "]"
@@ -941,8 +941,7 @@ DESCRY = {
         SPECK48_96: (ptStr, kStr) => {
             const key64bit = blake.blake2bHex(kStr, null, 8) // expand key to fixed length of 64 bits
             const key64arr = [parseInt(key64bit.slice(0, 4), 16), parseInt(key64bit.slice(4, 8), 16), parseInt(key64bit.slice(8, 12), 16), parseInt(key64bit.slice(12, 16), 16)]
-            const encryptedCodepointsArray = Array.from(ptStr, c => speck32_64.encrypt(c.codePointAt(0), key64arr))
-            return ZWUS6.encodeNumberArray(encryptedCodepointsArray)
+            return ZWUS6.encodeNumberArray(Array.from(ptStr, c => speck32_64.encrypt(c.codePointAt(0), key64arr)))
         },
         PLAIN: (plaintext) => ZWUS6.encodeString(plaintext)
     },
@@ -950,29 +949,24 @@ DESCRY = {
         SPECK48_96: (ptStr, kStr) => {
             const key64bit = blake.blake2bHex(kStr, null, 8) // expand key to fixed length of 64 bits
             const key64arr = [parseInt(key64bit.slice(0, 4), 16), parseInt(key64bit.slice(4, 8), 16), parseInt(key64bit.slice(8, 12), 16), parseInt(key64bit.slice(12, 16), 16)]
-            let decoded = ZWUS6.decodeNumber(ptStr);
-            let decrypted = decoded.map(x => String.fromCodePoint(speck32_64.decrypt(x, key64arr)))
-            console.log(decrypted)
-
-            return decrypted
+            return ZWUS6.decodeToNumberArray(ptStr).map(x => String.fromCodePoint(speck32_64.decrypt(x, key64arr))).join('')
         },
-        PLAIN: (plaintext) => ZWUS6.decodeString(plaintext)
+        PLAIN: (plaintext) => ZWUS6.decodeToString(plaintext)
     }
 
-}
-// https://soundcloud.com/esudesu/tried-luvletter
+} // https://soundcloud.com/esudesu/tried-luvletter
 
-let encoded = DESCRY.NO.SPECK48_96("aab", "a")
-DESCRY.YES.SPECK48_96(encoded, "a")
-
+ZWUS6.cnt()
 },{"./zwus.mjs":7,"blakejs":3,"generic-speck":5}],7:[function(require,module,exports){
+// 5: "\u{200F}", 5: "\u{200E}"
 /** Zero Width Unicode Standard — Senary */
 const ZWUS6 = {
-    alphabet: {0: "\u{180E}", 1: "\u{200B}", 2: "\u{200C}", 3: "\u{200D}", 4: "\u{200E}", 5: "\u{200F}", unifier: "\u{2060}"},
+    cnt: () => console.log(ZWUS6.alphabet.length),
+    alphabet: {0:"\u{00AD}", 1: "\u{180E}", 2: "\u{200B}", 3: "\u{200C}", 4: "\u{200D}", 5: "\u{200F}", unifier: "\u{2060}"},
     encodeString: (text) => Array.from(text, u => u.codePointAt(0).toString(6).split('').map(x => ZWUS6.alphabet[x]).join('')).join(ZWUS6.alphabet.unifier),
     encodeNumberArray: (arr) => arr.map(n => n.toString(6).split('').map(x => ZWUS6.alphabet[x]).join('')).join(ZWUS6.alphabet.unifier),
-    decodeString: (text) => text.split(ZWUS6.alphabet.unifier).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(ZWUS6.alphabet).find(k => ZWUS6.alphabet[k] === z)).join(''), 6))).join(''),
-    decodeNumber: (text) => text.split(ZWUS6.alphabet.unifier).map(x => parseInt(Array.from(x).map(z => Object.keys(ZWUS6.alphabet).find(k => ZWUS6.alphabet[k] === z)).join(''), 6)),
+    decodeToString: (text) => text.split(ZWUS6.alphabet.unifier).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(ZWUS6.alphabet).find(k => ZWUS6.alphabet[k] === z)).join(''), 6))).join(''),
+    decodeToNumberArray: (text) => text.split(ZWUS6.alphabet.unifier).map(x => parseInt(Array.from(x).map(z => Object.keys(ZWUS6.alphabet).find(k => ZWUS6.alphabet[k] === z)).join(''), 6)),
 } // https://soundcloud.com/crystal-castles/pino-placentile-wooden-girl
 
 module.exports = ZWUS6
