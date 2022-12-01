@@ -8,14 +8,23 @@
         *
 
 
+# zero-width unicode detailed list
+\u{00AD} # conflict: .txt
+\u{180E} # conflict: reddit
+\u{200B} # conflict: protonmail
+\u{200C}
+\u{200D}
+\u{200E} # conflict: twitter
+\u{200F}
+\u{2060} # conflict: .txt
+\u{FEFF} # conflict: twitter github
 
 
-https://nodejs.org/en/download/
-npm install -g browserify
-browserify .js -o bundle.js
+# logs
+2022-07-04        still blind
+2022-08-20        still blind
+2022-11-14        no longer blind -RENOX
+2022-11-30        v2.0
 
+# donate
 
-
-# 2022-07-04        still blind
-# 2022-08-20        still blind
-# 2022-11-14        no longer blind -RENOX

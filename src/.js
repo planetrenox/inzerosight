@@ -46,5 +46,3 @@ DESCRY = {
     }
 
 } // https://soundcloud.com/esudesu/tried-luvletter
-
-ZWUS6.cnt()
