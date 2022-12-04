@@ -907,11 +907,9 @@ function speck (params = {}) {
 module.exports = speck
 
 },{}],6:[function(require,module,exports){
-const createSpeck = require('generic-speck')
+const speck32_64 = require('generic-speck')()
 const blake = require('blakejs')
 const ZWUS6 = require('./zwus.mjs')
-const speck32_64 = createSpeck()
-
 
 const textarea = document.getElementById("textarea")
 const cipherDropdown = document.getElementById("cipher")
