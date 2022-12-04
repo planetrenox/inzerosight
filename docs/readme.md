@@ -16,22 +16,9 @@ There exist 7 unicode which can be typed anywhere text is allowed. These charact
 This extension defines a standard to represent all unicode so they can be encoded into zero width.
 
 ```
-/** Zero Width Unicode Standard — Senary */
-const DES =
-    {
-        CODE:
-            {
-                0: "\u{180E}",
-                1: "\u{200B}",
-                2: "\u{200C}",
-                3: "\u{200D}",
-                4: "\u{200E}",
-                5: "\u{2060}",
-                unifier: "\u{FEFF}"
-            },
-
-        EN: (text: string) => Array.from(text).map(x => x.codePointAt(0).toString(6).split('').map(x => DES.CODE[x]).join('')).join(DES.CODE.unifier),
-        DE: (text: string) => text.split(DES.CODE.unifier).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(DES.CODE).find(k => DES.CODE[k] === z)).join(''), 6))).join('')
-    };
+/** Zero Width Unicode Standard */
+const ZWUS = {
+    alphabet: {unifier: "\u{200C}", 0:"\u{200D}", 1: "\u{200F}", 2: "\u{00AD}", 3: "\u{2060}", 4: "\u{200B}", 5: "\u{200E}", 6:"\u{180E}", 7:"\u{FEFF}"},
+    encodeString: (text, base = 6) => Array.from(text, u => u.codePointAt(0).toString(base).split('').map(x => ZWUS.alphabet[x]).join('')).join(ZWUS.alphabet.unifier)}
 ```
-*Pull requests are welcome.*
+
