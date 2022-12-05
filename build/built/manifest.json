@@ -1,20 +1,20 @@
 {
   "manifest_version": 2,
   "name": "inØsight",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "author": "planetrenox@pm.me",
   "homepage_url": "https://github.com/planetrenox/inzerosight",
   "description": "Communicate undetected in plain sight.",
   "icons": {
-    "48": ".png"
+    "48": "icon.png"
   },
   "browser_action": {
     "browser_style": false,
-    "default_icon": ".png",
+    "default_icon": "icon.png",
     "default_title": "inØsight",
-    "default_popup": ".html"
+    "default_popup": "dash.html"
   },
   "web_accessible_resources": [
-    ".woff"
+    "candara.woff"
   ]
 }

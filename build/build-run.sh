@@ -4,7 +4,7 @@
 BLDDIR="../build"
 
 cd build
-cd ../src && npx browserify .js -o $BLDDIR/firefox/.js
-cp .html $BLDDIR/firefox/.html
-cp .png $BLDDIR/firefox/.png
-cp .woff $BLDDIR/firefox/.woff
+cd ../src && npx browserify dash.js -o $BLDDIR/built/dash.js
+cp dash.html $BLDDIR/built/
+cp icon.png $BLDDIR/built/
+cp candara.woff $BLDDIR/built/

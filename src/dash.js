@@ -1,6 +1,6 @@
 const speck32_64 = require('generic-speck')()
 const blake = require('blakejs')
-const ZWUS6 = require('./zwus.mjs')
+const zwus = require('zwus')
 
 const textarea = document.getElementById("textarea")
 const cipherDropdown = document.getElementById("cipher")
@@ -30,17 +30,17 @@ DESCRY = {
         SPECK48_96: (ptStr, kStr) => {
             const key64bit = blake.blake2bHex(kStr, null, 8) // expand key to fixed length of 64 bits
             const key64arr = [parseInt(key64bit.slice(0, 4), 16), parseInt(key64bit.slice(4, 8), 16), parseInt(key64bit.slice(8, 12), 16), parseInt(key64bit.slice(12, 16), 16)]
-            return ZWUS6.encodeNumberArray(Array.from(ptStr, c => speck32_64.encrypt(c.codePointAt(0), key64arr)))
+            return zwus.encodeNumberArray(Array.from(ptStr, c => speck32_64.encrypt(c.codePointAt(0), key64arr)))
         },
-        PLAIN: (plaintext) => ZWUS6.encodeString(plaintext)
+        PLAIN: (plaintext) => zwus.encodeString(plaintext)
     },
     YES: {
         SPECK48_96: (ptStr, kStr) => {
             const key64bit = blake.blake2bHex(kStr, null, 8) // expand key to fixed length of 64 bits
             const key64arr = [parseInt(key64bit.slice(0, 4), 16), parseInt(key64bit.slice(4, 8), 16), parseInt(key64bit.slice(8, 12), 16), parseInt(key64bit.slice(12, 16), 16)]
-            return ZWUS6.decodeToNumberArray(ptStr).map(x => String.fromCodePoint(speck32_64.decrypt(x, key64arr))).join('')
+            return zwus.decodeToNumberArray(ptStr).map(x => String.fromCodePoint(speck32_64.decrypt(x, key64arr))).join('')
         },
-        PLAIN: (plaintext) => ZWUS6.decodeToString(plaintext)
+        PLAIN: (plaintext) => zwus.decodeToString(plaintext)
     }
 
 } // https://soundcloud.com/esudesu/tried-luvletter

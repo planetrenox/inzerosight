@@ -907,9 +907,20 @@ function speck (params = {}) {
 module.exports = speck
 
 },{}],6:[function(require,module,exports){
+/** Zero Width Unicode Standard */
+const ZWUS = {
+    alphabet: {unifier: "\u{200C}", 0:"\u{200D}", 1: "\u{200F}", 2: "\u{00AD}", 3: "\u{2060}", 4: "\u{200B}", 5: "\u{200E}", 6:"\u{180E}", 7:"\u{FEFF}"},
+    encodeString: (text, base = 6) => Array.from(text, u => u.codePointAt(0).toString(base).split('').map(x => ZWUS.alphabet[x]).join('')).join(ZWUS.alphabet.unifier),
+    encodeNumberArray: (arr, base = 6) => arr.map(n => n.toString(base).split('').map(x => ZWUS.alphabet[x]).join('')).join(ZWUS.alphabet.unifier),
+    decodeToString: (text, base = 6) => text.split(ZWUS.alphabet.unifier).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(ZWUS.alphabet).find(k => ZWUS.alphabet[k] === z)).join(''), base))).join(''),
+    decodeToNumberArray: (text, base = 6) => text.split(ZWUS.alphabet.unifier).map(x => parseInt(Array.from(x).map(z => Object.keys(ZWUS.alphabet).find(k => ZWUS.alphabet[k] === z)).join(''), base)),
+} // https://soundcloud.com/crystal-castles/pino-placentile-wooden-girl
+
+module.exports = ZWUS
+},{}],7:[function(require,module,exports){
 const speck32_64 = require('generic-speck')()
 const blake = require('blakejs')
-const ZWUS6 = require('./zwus.mjs')
+const zwus = require('zwus')
 
 const textarea = document.getElementById("textarea")
 const cipherDropdown = document.getElementById("cipher")
@@ -939,29 +950,18 @@ DESCRY = {
         SPECK48_96: (ptStr, kStr) => {
             const key64bit = blake.blake2bHex(kStr, null, 8) // expand key to fixed length of 64 bits
             const key64arr = [parseInt(key64bit.slice(0, 4), 16), parseInt(key64bit.slice(4, 8), 16), parseInt(key64bit.slice(8, 12), 16), parseInt(key64bit.slice(12, 16), 16)]
-            return ZWUS6.encodeNumberArray(Array.from(ptStr, c => speck32_64.encrypt(c.codePointAt(0), key64arr)))
+            return zwus.encodeNumberArray(Array.from(ptStr, c => speck32_64.encrypt(c.codePointAt(0), key64arr)))
         },
-        PLAIN: (plaintext) => ZWUS6.encodeString(plaintext)
+        PLAIN: (plaintext) => zwus.encodeString(plaintext)
     },
     YES: {
         SPECK48_96: (ptStr, kStr) => {
             const key64bit = blake.blake2bHex(kStr, null, 8) // expand key to fixed length of 64 bits
             const key64arr = [parseInt(key64bit.slice(0, 4), 16), parseInt(key64bit.slice(4, 8), 16), parseInt(key64bit.slice(8, 12), 16), parseInt(key64bit.slice(12, 16), 16)]
-            return ZWUS6.decodeToNumberArray(ptStr).map(x => String.fromCodePoint(speck32_64.decrypt(x, key64arr))).join('')
+            return zwus.decodeToNumberArray(ptStr).map(x => String.fromCodePoint(speck32_64.decrypt(x, key64arr))).join('')
         },
-        PLAIN: (plaintext) => ZWUS6.decodeToString(plaintext)
+        PLAIN: (plaintext) => zwus.decodeToString(plaintext)
     }
 
 } // https://soundcloud.com/esudesu/tried-luvletter
-},{"./zwus.mjs":7,"blakejs":3,"generic-speck":5}],7:[function(require,module,exports){
-/** Zero Width Unicode Standard */
-const ZWUS = {
-    alphabet: {unifier: "\u{200C}", 0:"\u{200D}", 1: "\u{200F}", 2: "\u{00AD}", 3: "\u{2060}", 4: "\u{200B}", 5: "\u{200E}", 6:"\u{180E}", 7:"\u{FEFF}"},
-    encodeString: (text, base = 6) => Array.from(text, u => u.codePointAt(0).toString(base).split('').map(x => ZWUS.alphabet[x]).join('')).join(ZWUS.alphabet.unifier),
-    encodeNumberArray: (arr, base = 6) => arr.map(n => n.toString(base).split('').map(x => ZWUS.alphabet[x]).join('')).join(ZWUS.alphabet.unifier),
-    decodeToString: (text, base = 6) => text.split(ZWUS.alphabet.unifier).map(x => String.fromCodePoint(parseInt(Array.from(x).map(z => Object.keys(ZWUS.alphabet).find(k => ZWUS.alphabet[k] === z)).join(''), base))).join(''),
-    decodeToNumberArray: (text, base = 6) => text.split(ZWUS.alphabet.unifier).map(x => parseInt(Array.from(x).map(z => Object.keys(ZWUS.alphabet).find(k => ZWUS.alphabet[k] === z)).join(''), base)),
-} // https://soundcloud.com/crystal-castles/pino-placentile-wooden-girl
-
-module.exports = ZWUS
-},{}]},{},[6]);
+},{"blakejs":3,"generic-speck":5,"zwus":6}]},{},[7]);
