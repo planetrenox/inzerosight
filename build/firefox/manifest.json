@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "inØsight",
-  "version": "2",
+  "version": "2.0.1",
   "author": "planetrenox@pm.me",
   "homepage_url": "https://github.com/planetrenox/inzerosight",
   "description": "Communicate undetected in plain sight.",
