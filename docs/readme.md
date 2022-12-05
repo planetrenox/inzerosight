@@ -1,8 +1,8 @@
 <a href="https://addons.mozilla.org/en-US/firefox/addon/in0sight/"><img src="https://badgen.net/amo/users/in0sight?color=black&icon=firefox"></a> <a href="https://chrome.google.com/webstore/detail/in%C3%B8sight-%E2%80%94-zero-width-obf/fkobnhlaipildbjmlhaolahpplolnpcn"><img src="https://badgen.net/chrome-web-store/users/fkobnhlaipildbjmlhaolahpplolnpcn?icon=chrome&color=black"></a>
 
 
->**Paste this line of te‏‎‍­‍​‍‎⁠‍­‏‌‏‎‏­​⁠‎‍‎​­‏‌‏‍​‏­‎⁠‍­‎­⁠‎‌‏‍​‏­‎⁠‍­‎­⁠‎‌‏‎‍­‍​‍‎⁠‍­‏‌‏‎‏­​⁠‎‍‎​­‏‌‏‍​‏­‎⁠‍­‎­⁠‎‌‏‎‍­‍​‍‎⁠‍­‏‌‏‎‏­​⁠‎‍‎​­‏‌‏‍​‏­‎⁠‍­‎­⁠‎xt inside the extension & try decoding.**
->>If you're curious how this is possible, try pasting encoded text [here](https://www.branah.com/unicode-converter).
+>**Paste this line of t­‎­‌­‎⁠‌­​​‌­​​‌­​‎‌⁠‍­‌‎­‌­‎⁠‌⁠‍­‌‎­‌⁠‍​‌⁠‍‍‌­​‏‌­‎⁠‌⁠‍­‌‎­‌⁠‏‏‌­‎⁠‌­‎‏‌­‎­‌⁠‏­‌‏‏​xt inside the extension & try decoding.**
+>>If you're curious how this is possible, try pasting encoded text [here](https://unicode.scarfboy.com/).
 
 * **Firefox: [Install](https://addons.mozilla.org/en-US/firefox/addon/in0sight/)**
 * **Chrome: [Install](https://chrome.google.com/webstore/detail/in%C3%B8sight-%E2%80%94-zero-width-obf/fkobnhlaipildbjmlhaolahpplolnpcn)**
@@ -10,10 +10,14 @@
 
 ![](https://raw.githubusercontent.com/PlanetRenox/in0sight/master/images/ui.png "User Interface")
 
+### ?
+Unicode is the standard dictionary for every character that can be typed or pasted as text. There exists [millions](https://www.unicode.org/charts/) of uni codes containing foreign languages, emojis, etc. This standard won't be reverted. It is up to websites or the browser to ban characters. Some characters can have effects like making you write right to left, or act as the spacing between letters. From my research going through unicode charts I found 9 code points that are empty in length. It wouldn't be right to call them spaces because they don't even take up space.
 
-There exist 7 unicode which can be typed anywhere text is allowed. These characters take up no space and cannot be detected without prior knowledge.
+Now in the same way 2+2 = 4, we could say codepoint1+codepoint2 = A
 
-This extension defines a standard to represent all unicode so they can be encoded into zero width.
+ZWUS-6, the 6 standing for base6 or senary, converts the code point to base6, then encodes the numbers with the zero width character assigned to 0-6
+
+This extension defines a standard to represent **all** unicode so they can be encoded into zero width.
 
 ```
 /** Zero Width Unicode Standard */
