@@ -26,3 +26,9 @@ const ZWUS = {
     encodeString: (text, base = 6) => Array.from(text, u => u.codePointAt(0).toString(base).split('').map(x => ZWUS.alphabet[x]).join('')).join(ZWUS.alphabet.unifier)}
 ```
 
+I've personally tested them in places like Discord, Steam chat, Reddit, Github, local text files, etc.
+For extra security you can encrypt the text as well however this will increase its storage size.
+I highly doubt forensics teams have protocol in place to scan for hidden zero width.
+You can hide private information in a place no one can see or use it to communicate.
+
+After the last update, the signature feature was removed so all encoded text only includes relevant data. Furthermore this extension requires no browser permissions and collects zero data.
