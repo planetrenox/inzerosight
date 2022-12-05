@@ -31,4 +31,4 @@ For extra security you can encrypt the text as well however this will increase i
 I highly doubt forensics teams have protocol in place to scan for hidden zero width.
 You can hide private information in a place no one can see or use it to communicate.
 
-After the last update, the signature feature was removed so all encoded text only includes relevant data. Furthermore this extension requires no browser permissions and collects zero data.
+In update 2.0 the signature feature was removed so all encoded text only includes relevant data. Furthermore this extension requires no browser permissions and collects zero data.
