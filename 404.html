@@ -1,0 +1,21 @@
+<script>
+  fetch('build/built/dash.html')
+    .then(response => response.text())
+    .then(html => {
+      // Create a new document from the fetched HTML
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+
+      // Check if a base tag exists, if not, create and prepend it to the head
+      let base = doc.head.querySelector('base');
+      if (!base) {
+        base = doc.createElement('base');
+        base.href = '/build/built/'; // Set this to the base URL of dash.html resources
+        doc.head.prepend(base);
+      }
+
+      // Replace the current document with the new one
+      document.replaceChild(doc.documentElement, document.documentElement);
+    })
+    .catch(err => console.error('Failed to load dashboard:', err));
+</script>
