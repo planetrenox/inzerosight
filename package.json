@@ -21,7 +21,7 @@
     "speck"
   ],
   "scripts": {
-    "build:zwus": "npx rollup --config",
+    "build:zwus": "npx rollup --config src/zwus/rollup.config.js",
     "prepublishOnly": "npx shx cp docs/readme.md readme.md",
     "postpublish": "npx shx rm readme.md"
   },
@@ -30,7 +30,7 @@
   "bugs": {
     "url": "https://github.com/planetrenox/inzerosight/issues"
   },
-  "homepage": "https://github.com/planetrenox/inzerosight",
+  "homepage": "https://planetrenox.github.io/inzerosight/",
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.2.3"
   },

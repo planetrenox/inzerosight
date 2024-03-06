@@ -32,3 +32,5 @@ I highly doubt forensics teams have protocol in place to scan for hidden zero wi
 You can hide private information in a place no one can see or use it to communicate.
 
 In update 2.0 the signature feature was removed so all encoded text only includes relevant data. Furthermore this extension requires no browser permissions and collects zero data.
+
+**also available on [npmjs](https://www.npmjs.com/package/zwus)**
