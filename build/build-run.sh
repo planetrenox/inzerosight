@@ -3,7 +3,7 @@
 
 BLDDIR="../build"
 
-cd build
+cd build || exit
 cd ../src && npx browserify dash.js -o $BLDDIR/built/dash.js
 cp dash.html $BLDDIR/built/
 cp icon.png $BLDDIR/built/

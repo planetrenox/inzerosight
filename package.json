@@ -1,0 +1,38 @@
+{
+  "name": "zwus",
+  "version": "1.0.1",
+  "description": "Zero Width Unicode Standard",
+  "type": "module",
+  "module": "zwus.esm.js",
+  "main": "zwus.cjs.js",
+  "files": [
+    "zwus.esm.js",
+    "zwus.cjs.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/planetrenox/inzerosight.git"
+  },
+  "keywords": [
+    "zero width",
+    "obfuscation",
+    "cipher",
+    "encoding",
+    "speck"
+  ],
+  "scripts": {
+    "build:zwus": "npx rollup --config",
+    "prepublishOnly": "npx shx cp docs/readme.md readme.md",
+    "postpublish": "npx shx rm readme.md"
+  },
+  "author": "planetrenox",
+  "license": "WTFPL",
+  "bugs": {
+    "url": "https://github.com/planetrenox/inzerosight/issues"
+  },
+  "homepage": "https://github.com/planetrenox/inzerosight",
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3"
+  },
+  "funding": "https://bit.ly/incessant-vibration"
+}
