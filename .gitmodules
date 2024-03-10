@@ -1,0 +1,3 @@
+[submodule "src/zwus"]
+	path = src/zwus
+	url = https://github.com/planetrenox/ZWUS.git

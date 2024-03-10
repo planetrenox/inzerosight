@@ -4,8 +4,8 @@
 .idea
 package-lock.json
 dist
-zwus.cjs.js
-zwus.esm.js
+../ZWUS/zwus.cjs.js
+../ZWUS/zwus.esm.js
         
 # Logs
 logs
