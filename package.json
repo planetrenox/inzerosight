@@ -1,11 +1,5 @@
 {
   "name": "inzerosight",
   "version": "2.1.0",
-  "description": "Communicate undetected in plain sight.",
-  "author": "planetrenox@pm.me",
-  "private": true,
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/planetrenox/inzerosight.git"
-  }
+  "private": true
 }
