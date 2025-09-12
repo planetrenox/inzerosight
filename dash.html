@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div id="overbar"><p>inØsight 2.1.0<a id="homepage" href="https://github.com/planetrenox/inzerosight" target="_blank">source</a></p></div>
+<textarea id="textarea" placeholder="input text here..."></textarea>
+<input id="encodeButton" type="button" name="button" value="encode to clipboard"/>
+<input id="decodeButton" type="button" name="button" value="decode from text"/>
+<select id="encoder">
+    <optgroup label="Standard">
+        <option>ZWUS-3</option>
+        <option>ZWUS-6</option>
+        <option>ZWUS-8</option>
+    </optgroup>
+    <!--    <optgroup label="Depreciated"></optgroup>-->
+</select>
+<select id="cipher">
+    <optgroup label="Encryption">
+        <option>PLAIN</option>
+        <option>SPECK32_64ECB</option>
+    </optgroup>
+</select>
+<a id="info" href="https://github.com/planetrenox/inzerosight/blob/master/docs/info.md" target="_blank">info</a>
+<p id="notice">
+    notice: some platforms restrict Ø width characters.
+    <a id="versions" href="https://raw.githubusercontent.com/planetrenox/inzerosight/main/docs/donate" target="_blank">donate</a>
+</p>
+<script src="dash.js"></script>
+</body>
+<style>
+    html, body, div, span, applet, object, iframe,
+    h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+    a, abbr, acronym, address, big, cite, code,
+    del, dfn, em, img, ins, kbd, q, s, samp,
+    small, strike, strong, sub, sup, tt, var,
+    b, u, i, center,
+    dl, dt, dd, ol, ul, li,
+    fieldset, form, label, legend,
+    table, caption, tbody, tfoot, thead, tr, th, td,
+    article, aside, canvas, details, embed,
+    figure, figcaption, footer, header, hgroup,
+    menu, nav, output, ruby, section, summary,
+    time, mark, audio, video {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        font-size: 100%;
+        font: inherit;
+        vertical-align: baseline;
+    }
+
+    article, aside, details, figcaption, figure,
+    footer, header, hgroup, menu, nav, section {
+        display: block;
+    }
+
+    /* ---------------------------------------------------- */
+
+    body {
+        font-family: Candara, "DejaVu Sans", sans-serif, Arial, Helvetica;
+        background-color: #002b4d;
+        width: 500px;
+        height: 320px;
+        line-height: 1;
+        border: 1.5px solid rgb(0, 126, 199);
+    }
+
+    #overbar {
+        padding: 1.5%;
+        font-size: 10px;
+        font-weight: bold;
+        margin-bottom: 0px;
+        color: rgb(229, 244, 255, 0.6);
+        border-bottom: 1px solid rgb(0, 126, 199, .5);
+    }
+
+    #homepage {
+        position: fixed;
+        text-decoration: none;
+        color: yellow;
+        right: 2.5%;
+    }
+
+    #textarea {
+        background-color: #e6e6e6;
+        margin: 1.5%;
+        width: 95.5%;
+        height: 69%;
+        font-family: "Open Sans", Candara, "DejaVu Sans", sans-serif, Arial, Helvetica;
+        font-size: 13px;
+        font-style: normal;
+        font-variant: normal;
+        font-weight: 400;
+        line-height: 20px;
+    }
+
+    input {
+        font-size: 11.5px;
+    }
+
+    #encodeButton {
+        display: inline-block;
+        margin-bottom: 0px;
+        margin-left: 1.5%;
+        color: #002b4d;
+        cursor: pointer;
+    }
+
+    #decodeButton {
+        margin-bottom: 0px;
+        margin-left: 1.5%;
+        color: #002b4d;
+        cursor: pointer;
+    }
+
+    select {
+        display: inline-block;
+        margin-bottom: 0px;
+        margin-left: 1.5%;
+        color: #002b4d;
+        background-color: #e6e6e6;
+        text-align: center;
+        font-size: 11px;
+        width: 8.5em;
+    }
+
+    #notice {
+        font-size: 10px;
+        margin-top: 1.5%;
+        padding: .8% 0% 0% 1.7%;
+        color: rgb(229, 244, 255, 0.6);
+        border-top: 1px solid rgb(0, 126, 199, .5);
+    }
+
+    #versions {
+        color: rgb(0, 126, 199);
+        text-decoration: none;
+    }
+
+</style>
+</html>
