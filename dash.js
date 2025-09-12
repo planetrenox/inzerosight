@@ -50,11 +50,7 @@ function ACT(event) {
     }
 
     const op = event.target.id === 'encodeButton' ? 'NO' : 'YES';
-    try {
-        textarea.value = DESCRY[op]['PLAIN'](textarea.value, encoderDropdown.value.split('-')[1]);
-    } catch (e) {
-        console.log(e);
-    }
+    textarea.value = DESCRY[op]['PLAIN'](textarea.value, encoderDropdown.value.split('-')[1]);
 
     if (op === 'NO') {
         textarea.select();
