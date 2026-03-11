@@ -8,7 +8,7 @@ export default defineConfig({
         outDir: `dist/${target}`,
         emptyOutDir: true,
     },
-    plugins: [
+    plugins:[
         webExtension({
             manifest: () => {
                 const base = {
@@ -25,7 +25,7 @@ export default defineConfig({
                         ...base,
                         manifest_version: 3,
                         action: {
-                            default_icon: "icon_500.png",
+                            default_icon: { "48": "icon_500.png" },
                             default_title: "in\u00D8sight",
                             default_popup: "index.html",
                         },
