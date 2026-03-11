@@ -12,7 +12,7 @@ export default defineConfig(async () => {
                 manifest: () => {
                     const base = {
                         name: "in\u00D8sight",
-                        version: "2.1.0",
+                        version: "2.2.0",
                         author: "planetrenox@pm.me",
                         homepage_url: "https://github.com/planetrenox/inzerosight",
                         description: "Communicate undetected in plain sight.",
