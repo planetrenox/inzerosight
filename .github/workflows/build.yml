@@ -17,6 +17,11 @@ jobs:
 
       - run: bun run build
 
+      - name: Zip extensions
+        run: |
+          cd dist/chrome && zip -r ../inzerosight-chrome.zip . && cd ../..
+          cd dist/firefox && zip -r ../inzerosight-firefox.zip . && cd ../..
+
       - name: Commit and push dist
         run: |
           git config user.name "github-actions[bot]"
