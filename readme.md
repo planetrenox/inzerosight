@@ -1,6 +1,6 @@
 <p align="center"><img src="icon_500.png" width="128"></p>
 <h1 align="center">inØsight</h1>
-<p align="center">Hide encrypted text inside zero-width Unicode characters. Send secret messages through any text field — chat, email, documents — completely invisible to the naked eye.</p>
+<p align="center">Hide text inside zero-width Unicode characters. Send secret messages through any text field — chat, email, documents — completely invisible to the naked eye.</p>
 
 <p align="center">
 <a href="https://addons.mozilla.org/en-US/firefox/addon/in0sight/">Firefox Add-on</a> · Chrome Web Store (coming soon)
