@@ -41,7 +41,7 @@ export default defineConfig({
                         default_title: "in\u00D8sight",
                         default_popup: "index.html",
                     },
-                    content_security_policy: "script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com;",
+                    content_security_policy: "script-src 'self'; style-src 'self';",
                     browser_specific_settings: {
                         gecko: {
                             id: "{0a73f41c-c59c-404b-9e07-f7392fa830d4}",
