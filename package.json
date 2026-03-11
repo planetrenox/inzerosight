@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "TARGET=firefox vite",
+    "build:web": "TARGET=web vite build",
     "build:firefox": "TARGET=firefox vite build",
     "build:chrome": "TARGET=chrome vite build",
     "build": "bun run build:firefox && bun run build:chrome"
