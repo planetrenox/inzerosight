@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import fs from 'node:fs';
 
 const target = process.env.TARGET || 'firefox';
 
@@ -51,6 +52,16 @@ export default defineConfig(async () => {
             })
         );
     }
+
+    // Custom plugin to ensure the icon is always copied to the target output directory
+    plugins.push({
+        name: 'copy-icon',
+        writeBundle() {
+            if (fs.existsSync('icon_500.png')) {
+                fs.copyFileSync('icon_500.png', `dist/${target}/icon_500.png`);
+            }
+        }
+    });
 
     return {
         build: {
