@@ -1,5 +1,19 @@
 {
   "name": "inzerosight",
   "version": "2.1.0",
-  "private": true
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "TARGET=firefox vite",
+    "build:firefox": "TARGET=firefox vite build",
+    "build:chrome": "TARGET=chrome vite build",
+    "build": "bun run build:firefox && bun run build:chrome"
+  },
+  "dependencies": {
+    "zwus": "^2.2.0"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5",
+    "vite-plugin-web-extension": "^4.4.3"
+  }
 }
