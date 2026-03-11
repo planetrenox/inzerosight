@@ -23,21 +23,24 @@ function deriveNonce(key64arr) {
     return speck32_64.encrypt(0, key64arr) & 0xFFFF;
 }
 
-function ctrEncrypt(ptStr, key64arr) {
+function ctrKeystream(key64arr, index) {
     const nonce = deriveNonce(key64arr);
+    const ctrBlock = ((nonce << 16) | (index & 0xFFFF)) >>> 0;
+    return speck32_64.encrypt(ctrBlock, key64arr) >>> 0;
+}
+
+function ctrEncrypt(ptStr, key64arr) {
     return Array.from(ptStr, (c, i) => {
-        const ctrBlock = (nonce << 16) | (i & 0xFFFF);
-        const keystream = speck32_64.encrypt(ctrBlock, key64arr);
-        return c.codePointAt(0) ^ keystream;
+        const ks = ctrKeystream(key64arr, i);
+        return (c.codePointAt(0) ^ ks) >>> 0;
     });
 }
 
 function ctrDecrypt(numArr, key64arr) {
-    const nonce = deriveNonce(key64arr);
     return numArr.map((ct, i) => {
-        const ctrBlock = (nonce << 16) | (i & 0xFFFF);
-        const keystream = speck32_64.encrypt(ctrBlock, key64arr);
-        try { return String.fromCodePoint(ct ^ keystream); }
+        const ks = ctrKeystream(key64arr, i);
+        const cp = (ct ^ ks) >>> 0;
+        try { return String.fromCodePoint(cp); }
         catch { return ''; }
     }).join('');
 }
