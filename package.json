@@ -11,9 +11,9 @@
     "build": "bun run build:firefox && bun run build:chrome"
   },
   "dependencies": {
-    "zwus": "^2.2.0",
-    "blakejs": "^1.2.1",
-    "generic-speck": "^1.0.2"
+    "zwus": "2.2.0",
+    "blakejs": "1.2.1",
+    "generic-speck": "1.1.1"
   },
   "devDependencies": {
     "vite": "^6.3.5",
