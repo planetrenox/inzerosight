@@ -5,7 +5,7 @@ const speck48_96 = speck({ bits: 24, rounds: 23, rightRotations: 8, leftRotation
 
 export function getKey(kStr) {
     const key96bit = blake2bHex(kStr, null, 12);
-    return [
+    return[
         parseInt(key96bit.slice(0, 6), 16),
         parseInt(key96bit.slice(6, 12), 16),
         parseInt(key96bit.slice(12, 18), 16),
@@ -13,26 +13,30 @@ export function getKey(kStr) {
     ];
 }
 
-function deriveNonce(key) {
-    return speck48_96.encrypt(0, key) & 0xFFFFFF;
-}
-
-function ctrKeystream(key, index) {
-    const nonce = deriveNonce(key);
-    const ctrBlock = nonce * 16777216 + (index & 0xFFFFFF);
-    return speck48_96.encrypt(ctrBlock, key);
-}
-
 export function encrypt(ptStr, key) {
-    return Array.from(ptStr, (c, i) => {
-        const ks = ctrKeystream(key, i);
+    // Generate a cryptographically secure random 24-bit nonce
+    const nonce = globalThis.crypto.getRandomValues(new Uint32Array(1))[0] & 0xFFFFFF;
+    
+    const ctArr = Array.from(ptStr, (c, i) => {
+        const ctrBlock = nonce * 16777216 + (i & 0xFFFFFF);
+        const ks = speck48_96.encrypt(ctrBlock, key);
         return (c.codePointAt(0) ^ ks) >>> 0;
     });
+    
+    // Prepend the nonce to the ciphertext array
+    return [nonce, ...ctArr];
 }
 
 export function decrypt(numArr, key) {
-    return numArr.map((ct, i) => {
-        const ks = ctrKeystream(key, i);
+    if (!numArr || numArr.length === 0) return '';
+    
+    // Extract the nonce from the first element
+    const nonce = numArr[0];
+    const ctArr = numArr.slice(1);
+    
+    return ctArr.map((ct, i) => {
+        const ctrBlock = nonce * 16777216 + (i & 0xFFFFFF);
+        const ks = speck48_96.encrypt(ctrBlock, key);
         const cp = (ct ^ ks) >>> 0;
         try { return String.fromCodePoint(cp); }
         catch { return ''; }
