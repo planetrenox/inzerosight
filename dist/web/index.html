@@ -7,7 +7,7 @@
   <link rel="stylesheet" crossorigin href="/assets/index-BtIxyDe5.css">
 </head>
 <body>
-<div id="overbar"><p>inØsight 2.1.0<a id="homepage" href="https://github.com/planetrenox/inzerosight">source</a></p></div>
+<div id="overbar"><p>inØsight 2.2.0<a id="homepage" href="https://github.com/planetrenox/inzerosight">source</a></p></div>
 <textarea id="textarea" placeholder="input text here..."></textarea>
 <input id="encodeButton" type="button" name="button" value="encode to clipboard"/>
 <input id="decodeButton" type="button" name="button" value="decode from text"/>
@@ -21,7 +21,8 @@
 <select id="cipher">
     <optgroup label="Encryption">
         <option>PLAIN</option>
-        <option>SPECK32_64ECB</option>
+        <option>SPECK32_64CTR</option>
+        <option>SPECK32_64ECB (insecure)</option>
     </optgroup>
 </select>
 <p id="notice">
