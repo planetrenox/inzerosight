@@ -45,4 +45,7 @@ The result is a string of invisible Unicode that carries the full original text.
 
 ## Use ZWUS in Your Own Projects
 
-The encoder/decoder is a standalone npm package: **[zwus on npm](https://www.npmjs.com/package/zwus)**
+The encoder/decoder is available as a standalone package for multiple languages:
+
+- **JavaScript/TypeScript:** [zwus on npm](https://www.npmjs.com/package/zwus)
+- **Rust:** [zwus on crates.io](https://crates.io/crates/zwus)
